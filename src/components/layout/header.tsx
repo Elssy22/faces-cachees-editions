@@ -9,11 +9,11 @@ import { useCartStore } from '@/store/cart'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/livres', label: 'Tous les livres' },
-  { href: '/auteurs', label: 'Nos auteurs' },
-  { href: '/contact', label: 'Nous contacter' },
+  { href: '/livres', label: 'Catalogue' },
+  { href: '/auteurs', label: 'Auteurs' },
   { href: '/qui-sommes-nous', label: 'Qui sommes-nous' },
-  { href: '/blog', label: 'Le blog' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/contact', label: 'Contact' },
 ]
 
 export function Header() {
@@ -22,53 +22,36 @@ export function Header() {
   const itemCount = getItemCount()
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex h-20 md:h-24 items-center justify-between gap-4">
-          {/* Left Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8 text-sm font-medium flex-1">
-            {navItems.slice(0, 2).map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'transition-colors hover:text-black whitespace-nowrap',
-                  pathname === item.href
-                    ? 'text-black font-semibold'
-                    : 'text-gray-600'
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+    <header className="sticky top-0 z-50 w-full bg-white border-b">
+      {/* Logo Section */}
+      <div className="container mx-auto px-4 py-6">
+        <Link href="/" className="flex items-center justify-center">
+          <Image
+            src="/logo-faces-cachees.webp"
+            alt="Faces cachées Éditions"
+            width={280}
+            height={112}
+            className="h-16 w-auto md:h-20"
+            priority
+          />
+        </Link>
+      </div>
 
-          {/* Logo centered */}
-          <div className="flex items-center justify-center flex-shrink-0">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/logo-faces-cachees.webp"
-                alt="Faces cachées Éditions"
-                width={240}
-                height={96}
-                className="h-14 w-auto md:h-20 lg:h-24"
-                priority
-              />
-            </Link>
-          </div>
-
-          {/* Right Navigation + Actions */}
-          <div className="flex items-center gap-3 md:gap-4 flex-1 justify-end">
-            <nav className="hidden lg:flex items-center space-x-8 text-sm font-medium">
-              {navItems.slice(2).map((item) => (
+      {/* Navigation Section */}
+      <div className="border-t bg-white">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center gap-1">
+            {/* Main Navigation */}
+            <nav className="hidden md:flex items-center">
+              {navItems.map((item, index) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'transition-colors hover:text-black whitespace-nowrap',
+                    'px-5 py-4 text-sm uppercase tracking-wide font-medium transition-colors hover:bg-gray-50',
                     pathname === item.href
-                      ? 'text-black font-semibold'
-                      : 'text-gray-600'
+                      ? 'text-black bg-gray-50'
+                      : 'text-gray-700'
                   )}
                 >
                   {item.label}
@@ -76,12 +59,46 @@ export function Header() {
               ))}
             </nav>
 
-            {/* Account & Cart Icons */}
-            <div className="flex items-center gap-2">
+            {/* Account & Cart - Desktop */}
+            <div className="hidden md:flex items-center ml-auto">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hover:bg-gray-50 px-5 py-4 h-auto rounded-none"
+                asChild
+              >
+                <Link href="/compte">
+                  <User className="h-4 w-4 mr-2" />
+                  <span className="text-sm uppercase tracking-wide font-medium">
+                    Compte
+                  </span>
+                </Link>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative hover:bg-gray-50 px-5 py-4 h-auto rounded-none"
+                onClick={() => setIsOpen(true)}
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                <span className="text-sm uppercase tracking-wide font-medium">
+                  Panier
+                </span>
+                {itemCount > 0 && (
+                  <span className="ml-2 inline-flex items-center justify-center h-5 w-5 rounded-full bg-black text-xs text-white font-semibold">
+                    {itemCount > 9 ? '9+' : itemCount}
+                  </span>
+                )}
+              </Button>
+            </div>
+
+            {/* Mobile Actions */}
+            <div className="md:hidden flex items-center gap-2 ml-auto">
               <Button
                 variant="ghost"
                 size="icon"
-                className="hover:bg-gray-100"
+                className="hover:bg-gray-50"
                 asChild
               >
                 <Link href="/compte">
@@ -93,7 +110,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative hover:bg-gray-100"
+                className="relative hover:bg-gray-50"
                 onClick={() => setIsOpen(true)}
               >
                 <ShoppingCart className="h-5 w-5" />
@@ -106,20 +123,18 @@ export function Header() {
               </Button>
             </div>
           </div>
-        </div>
 
-        {/* Mobile/Tablet Navigation */}
-        <div className="lg:hidden border-t pt-3 pb-3">
-          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm justify-center">
+          {/* Mobile Navigation */}
+          <nav className="md:hidden border-t py-3 flex flex-wrap justify-center gap-4 text-sm">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'transition-colors hover:text-black',
+                  'uppercase tracking-wide font-medium transition-colors',
                   pathname === item.href
-                    ? 'text-black font-semibold'
-                    : 'text-gray-600'
+                    ? 'text-black'
+                    : 'text-gray-600 hover:text-black'
                 )}
               >
                 {item.label}

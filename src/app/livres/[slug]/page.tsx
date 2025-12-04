@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const { data: book } = await supabase
     .from('books')
-    .select('title, description')
+    .select('title, summary')
     .eq('slug', slug)
     .single()
 
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return {
     title: book.title,
-    description: book.description || `Découvrez ${book.title}`,
+    description: book.summary || `Découvrez ${book.title}`,
   }
 }
 
@@ -40,12 +40,14 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
       *,
       authors (
         id,
-        name,
+        first_name,
+        last_name,
+        slug,
         bio
       )
     `)
     .eq('slug', slug)
-    .eq('published', true)
+    .eq('status', 'published')
     .single()
 
   if (!book) {
@@ -57,9 +59,9 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
       <div className="grid gap-12 md:grid-cols-2">
         {/* Couverture du livre */}
         <div className="relative aspect-[2/3] max-w-md mx-auto w-full">
-          {book.cover_url ? (
+          {book.cover_image_url ? (
             <Image
-              src={book.cover_url}
+              src={book.cover_image_url}
               alt={book.title}
               fill
               className="object-cover rounded-lg shadow-2xl"
@@ -76,37 +78,32 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
         {/* Informations du livre */}
         <div className="flex flex-col">
           {/* Type de livre */}
-          <Badge className="w-fit mb-4">
-            {book.book_type && BOOK_TYPES[book.book_type as keyof typeof BOOK_TYPES]}
+          <Badge className="w-fit mb-4 capitalize">
+            {book.book_type.replace('_', ' ')}
           </Badge>
 
           <h1 className="font-serif text-4xl font-bold mb-4">{book.title}</h1>
 
           {/* Auteur */}
           {book.authors && (
-            <p className="text-xl text-gray-600 mb-6">Par {book.authors.name}</p>
+            <p className="text-xl text-gray-600 mb-6">
+              Par {book.authors.first_name} {book.authors.last_name}
+            </p>
           )}
 
           {/* Prix et disponibilité */}
           <div className="mb-8">
-            <p className="text-3xl font-bold mb-2">{formatPrice(book.price)}</p>
-            {book.stock > 0 ? (
-              <p className="text-green-600">En stock ({book.stock} disponibles)</p>
-            ) : (
-              <p className="text-red-600">Rupture de stock</p>
-            )}
+            <p className="text-3xl font-bold mb-2">{book.price.toFixed(2)} €</p>
           </div>
 
           {/* Bouton ajouter au panier */}
           <AddToCartButton
-            book={{
-              id: book.id,
-              title: book.title,
-              price: book.price,
-              coverUrl: book.cover_url,
-              slug: book.slug,
-            }}
-            inStock={book.stock > 0}
+            bookId={book.id}
+            bookTitle={book.title}
+            bookPrice={book.price}
+            bookCoverUrl={book.cover_image_url}
+            size="lg"
+            className="w-full"
           />
 
           {/* Informations supplémentaires */}
@@ -125,11 +122,11 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
                 <span className="font-medium">{book.page_count}</span>
               </div>
             )}
-            {book.release_date && (
+            {book.publication_date && (
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-gray-500" />
                 <span className="text-gray-600">Date de parution:</span>
-                <span className="font-medium">{formatDate(book.release_date)}</span>
+                <span className="font-medium">{formatDate(book.publication_date)}</span>
               </div>
             )}
           </div>
@@ -139,13 +136,13 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
       {/* Description et informations détaillées */}
       <div className="mt-16 grid gap-8 md:grid-cols-3">
         <div className="md:col-span-2">
-          {book.description && (
+          {book.summary && (
             <Card>
               <CardContent className="p-6">
                 <h2 className="font-serif text-2xl font-bold mb-4">Résumé</h2>
                 <div className="prose prose-gray max-w-none">
                   <p className="whitespace-pre-line text-gray-700 leading-relaxed">
-                    {book.description}
+                    {book.summary}
                   </p>
                 </div>
               </CardContent>
@@ -158,7 +155,9 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
           <Card>
             <CardContent className="p-6">
               <h2 className="font-serif text-2xl font-bold mb-4">L'auteur</h2>
-              <h3 className="font-semibold text-lg mb-2">{book.authors.name}</h3>
+              <h3 className="font-semibold text-lg mb-2">
+                {book.authors.first_name} {book.authors.last_name}
+              </h3>
               {book.authors.bio && (
                 <p className="text-sm text-gray-600 leading-relaxed">
                   {book.authors.bio}

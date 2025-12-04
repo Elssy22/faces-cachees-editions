@@ -35,11 +35,11 @@ export default async function BooksPage({
       title,
       slug,
       price,
-      cover_url,
+      cover_image_url,
       book_type,
-      authors (name)
+      authors (first_name, last_name)
     `, { count: 'exact' })
-    .eq('published', true)
+    .eq('status', 'published')
 
   // Filtre par type
   if (params.type && params.type !== 'all') {
@@ -99,9 +99,13 @@ export default async function BooksPage({
                     key={book.id}
                     id={book.id}
                     title={book.title}
-                    author={book.authors?.name || 'Auteur inconnu'}
+                    author={
+                      book.authors
+                        ? `${book.authors.first_name} ${book.authors.last_name}`
+                        : 'Auteur inconnu'
+                    }
                     price={book.price}
-                    coverUrl={book.cover_url}
+                    coverUrl={book.cover_image_url}
                     slug={book.slug}
                   />
                 ))}

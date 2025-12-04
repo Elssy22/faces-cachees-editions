@@ -13,21 +13,21 @@ export const metadata = {
 export default async function Home() {
   const supabase = await createClient()
 
-  // Récupérer le dernier livre sorti (bloc 1)
-  const { data: latestBook } = await supabase
+  // Récupérer le livre "L'histoire du football africain" pour le mettre en vedette
+  const { data: featuredBook } = await supabase
     .from('books')
     .select(`
       id,
       title,
       slug,
       price,
-      cover_url,
-      release_date,
-      authors (name)
+      cover_image_url,
+      publication_date,
+      summary,
+      authors (first_name, last_name)
     `)
-    .eq('published', true)
-    .order('release_date', { ascending: false })
-    .limit(1)
+    .eq('slug', 'histoire-football-africain')
+    .eq('status', 'published')
     .single()
 
   // Récupérer les 4 derniers livres (bloc 2)
@@ -38,10 +38,10 @@ export default async function Home() {
       title,
       slug,
       price,
-      cover_url,
-      authors (name)
+      cover_image_url,
+      authors (first_name, last_name)
     `)
-    .eq('published', true)
+    .eq('status', 'published')
     .order('created_at', { ascending: false })
     .limit(4)
 
@@ -56,16 +56,16 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Dernier livre sorti */}
-      {latestBook && (
+      {/* Hero Section - L'histoire du football africain */}
+      {featuredBook && (
         <section className="bg-gradient-to-b from-gray-50 to-white py-16">
           <div className="container mx-auto px-4">
             <div className="grid gap-8 md:grid-cols-2 md:gap-12 items-center">
               <div className="relative aspect-[2/3] max-w-md mx-auto">
-                {latestBook.cover_url ? (
+                {featuredBook.cover_image_url ? (
                   <Image
-                    src={latestBook.cover_url}
-                    alt={latestBook.title}
+                    src={featuredBook.cover_image_url}
+                    alt={featuredBook.title}
                     fill
                     className="object-cover rounded-lg shadow-2xl"
                     priority
@@ -79,20 +79,28 @@ export default async function Home() {
               </div>
               <div className="flex flex-col justify-center">
                 <p className="text-sm font-medium uppercase tracking-wide text-gray-500">
-                  Nouvelle sortie
+                  À découvrir
                 </p>
                 <h1 className="mt-2 font-serif text-4xl font-bold md:text-5xl">
-                  {latestBook.title}
+                  {featuredBook.title}
                 </h1>
                 <p className="mt-4 text-lg text-gray-600">
-                  Par {latestBook.authors?.name}
+                  Par{' '}
+                  {featuredBook.authors
+                    ? `${featuredBook.authors.first_name} ${featuredBook.authors.last_name}`
+                    : 'Auteur inconnu'}
                 </p>
+                {featuredBook.summary && (
+                  <p className="mt-4 text-gray-600 line-clamp-4">
+                    {featuredBook.summary}
+                  </p>
+                )}
                 <p className="mt-6 text-2xl font-bold">
-                  {(latestBook.price / 100).toFixed(2)} €
+                  {featuredBook.price.toFixed(2)} €
                 </p>
                 <div className="mt-8 flex gap-4">
                   <Button size="lg" asChild>
-                    <Link href={`/livres/${latestBook.slug}`}>
+                    <Link href={`/livres/${featuredBook.slug}`}>
                       Découvrir
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
@@ -123,9 +131,13 @@ export default async function Home() {
                   key={book.id}
                   id={book.id}
                   title={book.title}
-                  author={book.authors?.name || 'Auteur inconnu'}
+                  author={
+                    book.authors
+                      ? `${book.authors.first_name} ${book.authors.last_name}`
+                      : 'Auteur inconnu'
+                  }
                   price={book.price}
-                  coverUrl={book.cover_url}
+                  coverUrl={book.cover_image_url}
                   slug={book.slug}
                 />
               ))}
