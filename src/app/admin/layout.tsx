@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   Calendar,
+  UserCog,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -24,6 +25,7 @@ const navigation = [
   { name: 'Livres', href: '/admin/livres', icon: BookOpen },
   { name: 'Auteurs', href: '/admin/auteurs', icon: Users },
   { name: 'Événements', href: '/admin/evenements', icon: Calendar },
+  { name: 'Cofondateurs', href: '/admin/cofondateurs', icon: UserCog },
   { name: 'Commandes', href: '/admin/commandes', icon: ShoppingBag },
   { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
   { name: 'Paramètres', href: '/admin/parametres', icon: Settings },

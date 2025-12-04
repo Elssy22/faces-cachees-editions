@@ -3,13 +3,22 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { BookOpen, Users, Heart, Target } from 'lucide-react'
+import { createClient } from '@/lib/supabase-server'
 
 export const metadata = {
   title: 'Qui sommes-nous',
   description: 'Découvrez Faces Cachées Éditions, notre mission et nos valeurs',
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const supabase = await createClient()
+
+  // Charger les cofondateurs
+  const { data: founders } = await supabase
+    .from('founders')
+    .select('*')
+    .order('display_order', { ascending: true })
+
   return (
     <div className="container mx-auto px-4 py-12">
       {/* Hero Section */}
@@ -22,6 +31,53 @@ export default function AboutPage() {
           et un engagement à révéler des voix singulières
         </p>
       </div>
+
+      {/* Les cofondateurs */}
+      {founders && founders.length > 0 && (
+        <section className="mb-16">
+          <h2 className="font-serif text-3xl font-bold mb-8 text-center">
+            Les cofondateurs
+          </h2>
+          <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
+            {founders.map((founder) => (
+              <Card key={founder.id}>
+                <CardContent className="p-6 text-center">
+                  {founder.photo_url && (
+                    <div className="relative w-48 h-48 mx-auto mb-4 rounded-full overflow-hidden">
+                      <Image
+                        src={founder.photo_url}
+                        alt={`${founder.first_name} ${founder.last_name}`}
+                        fill
+                        className="object-cover"
+                        sizes="192px"
+                      />
+                    </div>
+                  )}
+                  {!founder.photo_url && (
+                    <div className="w-48 h-48 mx-auto mb-4 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-5xl font-bold text-gray-400">
+                        {founder.first_name[0]}
+                        {founder.last_name[0]}
+                      </span>
+                    </div>
+                  )}
+                  <h3 className="font-serif text-2xl font-bold mb-2">
+                    {founder.first_name} {founder.last_name}
+                  </h3>
+                  <p className="text-sm font-medium text-gray-600 mb-4">
+                    Cofondateur de Faces Cachées Éditions
+                  </p>
+                  {founder.description && (
+                    <p className="text-gray-700 leading-relaxed">
+                      {founder.description}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Notre histoire */}
       <section className="mb-16">
