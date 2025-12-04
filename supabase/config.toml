@@ -1,0 +1,62 @@
+# Supabase configuration file for local development
+# https://supabase.com/docs/guides/cli/config
+
+project_id = "faces-cachees-editions"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://localhost:3000"]
+
+# Email settings for local development
+enable_signup = true
+enable_anonymous_sign_ins = false
+minimum_password_length = 8
+
+# Enable email auth
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false # Set to true in production
+
+# External OAuth providers
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+
+[auth.external.facebook]
+enabled = true
+client_id = "env(FACEBOOK_CLIENT_ID)"
+secret = "env(FACEBOOK_CLIENT_SECRET)"
+
+# Realtime
+[realtime]
+enabled = true
+
+# Analytics (disable in local dev)
+[analytics]
+enabled = false
