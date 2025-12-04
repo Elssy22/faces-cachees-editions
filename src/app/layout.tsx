@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/toaster";
 import { NewsletterPopup } from "@/components/newsletter-popup";
+import { CartDrawer } from "@/components/cart-drawer";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 
 const inter = Inter({
@@ -53,6 +54,7 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
         </div>
+        <CartDrawer />
         <NewsletterPopup />
         <Toaster />
       </body>
