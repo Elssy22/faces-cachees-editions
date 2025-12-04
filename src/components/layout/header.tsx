@@ -49,9 +49,9 @@ export function Header() {
               <Image
                 src="/logo-faces-cachees.webp"
                 alt="Faces cachées Éditions"
-                width={150}
-                height={60}
-                className="h-12 w-auto"
+                width={200}
+                height={80}
+                className="h-16 w-auto md:h-20"
                 priority
               />
             </Link>
