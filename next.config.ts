@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: 'www.dropbox.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'assets.bigcartel.com',
+        pathname: '/**',
+      },
     ],
   },
 };

@@ -45,6 +45,8 @@ export default function EditBookPage({
     isbn: '',
     publication_date: '',
     status: 'draft' as 'draft' | 'scheduled' | 'published',
+    initial_stock: '',
+    current_stock: '',
   })
 
   useEffect(() => {
@@ -93,6 +95,8 @@ export default function EditBookPage({
           ? new Date(data.publication_date).toISOString().split('T')[0]
           : '',
         status: data.status || 'draft',
+        initial_stock: data.initial_stock?.toString() || '100',
+        current_stock: data.current_stock?.toString() || '100',
       })
     }
 
@@ -125,6 +129,8 @@ export default function EditBookPage({
         isbn: formData.isbn || null,
         publication_date: formData.publication_date || null,
         status: formData.status,
+        initial_stock: formData.initial_stock ? parseInt(formData.initial_stock) : 100,
+        current_stock: formData.current_stock ? parseInt(formData.current_stock) : 100,
       }
 
       const { error } = await supabase
@@ -320,6 +326,32 @@ export default function EditBookPage({
                       value={formData.genre}
                       onChange={(e) =>
                         setFormData({ ...formData, genre: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="initial_stock">Stock initial</Label>
+                    <Input
+                      id="initial_stock"
+                      type="number"
+                      min="0"
+                      value={formData.initial_stock}
+                      onChange={(e) =>
+                        setFormData({ ...formData, initial_stock: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="current_stock">Stock actuel</Label>
+                    <Input
+                      id="current_stock"
+                      type="number"
+                      min="0"
+                      value={formData.current_stock}
+                      onChange={(e) =>
+                        setFormData({ ...formData, current_stock: e.target.value })
                       }
                     />
                   </div>

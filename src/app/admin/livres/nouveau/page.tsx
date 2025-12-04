@@ -39,6 +39,8 @@ export default function NewBookPage() {
     isbn: '',
     publication_date: '',
     status: 'draft' as 'draft' | 'scheduled' | 'published',
+    initial_stock: '100',
+    current_stock: '100',
   })
 
   useEffect(() => {
@@ -100,6 +102,8 @@ export default function NewBookPage() {
         isbn: formData.isbn || null,
         publication_date: formData.publication_date || null,
         status: formData.status,
+        initial_stock: parseInt(formData.initial_stock) || 100,
+        current_stock: parseInt(formData.current_stock) || 100,
       }
 
       const { error } = await supabase.from('books').insert(bookData)
@@ -282,6 +286,32 @@ export default function NewBookPage() {
                       value={formData.genre}
                       onChange={(e) =>
                         setFormData({ ...formData, genre: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="initial_stock">Stock initial</Label>
+                    <Input
+                      id="initial_stock"
+                      type="number"
+                      min="0"
+                      value={formData.initial_stock}
+                      onChange={(e) =>
+                        setFormData({ ...formData, initial_stock: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="current_stock">Stock actuel</Label>
+                    <Input
+                      id="current_stock"
+                      type="number"
+                      min="0"
+                      value={formData.current_stock}
+                      onChange={(e) =>
+                        setFormData({ ...formData, current_stock: e.target.value })
                       }
                     />
                   </div>

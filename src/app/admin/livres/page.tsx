@@ -18,6 +18,8 @@ type Book = {
   status: string
   publication_date: string | null
   author_id: string
+  initial_stock: number
+  current_stock: number
   authors?: {
     first_name: string
     last_name: string
@@ -153,6 +155,9 @@ export default function AdminBooksPage() {
                   Prix
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Stock
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Statut
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -182,6 +187,27 @@ export default function AdminBooksPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
                       {formatPrice(Math.round(book.price * 100))}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-1">
+                        <div className="text-sm font-medium text-gray-900">
+                          {book.current_stock} / {book.initial_stock}
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              book.current_stock === 0
+                                ? 'bg-red-500'
+                                : book.current_stock < book.initial_stock * 0.2
+                                ? 'bg-orange-500'
+                                : 'bg-green-500'
+                            }`}
+                            style={{
+                              width: `${(book.current_stock / book.initial_stock) * 100}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -234,7 +260,7 @@ export default function AdminBooksPage() {
               ) : (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-6 py-12 text-center text-gray-500"
                   >
                     Aucun livre trouvé

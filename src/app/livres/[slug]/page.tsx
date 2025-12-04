@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatPrice, formatDate } from '@/lib/utils'
 import { BOOK_TYPES } from '@/lib/constants'
-import { Calendar, BookOpen, FileText } from 'lucide-react'
+import { Calendar, BookOpen, FileText, Ruler } from 'lucide-react'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -82,7 +82,12 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
             {book.book_type.replace('_', ' ')}
           </Badge>
 
-          <h1 className="font-serif text-4xl font-bold mb-4">{book.title}</h1>
+          <h1 className="font-serif text-4xl font-bold mb-2">{book.title}</h1>
+
+          {/* Sous-titre */}
+          {book.subtitle && (
+            <h2 className="text-2xl text-gray-600 mb-4">{book.subtitle}</h2>
+          )}
 
           {/* Auteur */}
           {book.authors && (
@@ -120,6 +125,13 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
                 <FileText className="h-4 w-4 text-gray-500" />
                 <span className="text-gray-600">Pages:</span>
                 <span className="font-medium">{book.page_count}</span>
+              </div>
+            )}
+            {book.dimensions && (
+              <div className="flex items-center gap-2">
+                <Ruler className="h-4 w-4 text-gray-500" />
+                <span className="text-gray-600">Dimensions:</span>
+                <span className="font-medium">{book.dimensions}</span>
               </div>
             )}
             {book.publication_date && (
