@@ -64,8 +64,6 @@ CREATE INDEX idx_events_author ON events(author_id);
 CREATE INDEX idx_events_book ON events(book_id);
 CREATE INDEX idx_events_published ON events(published, event_date)
   WHERE published = true;
-CREATE INDEX idx_events_upcoming ON events(event_date)
-  WHERE published = true AND event_date >= NOW();
 
 -- Trigger for updated_at
 CREATE TRIGGER update_events_updated_at

@@ -1,5 +1,8 @@
 -- Migration 010: Newsletter and contact tables
 
+-- Enable pgcrypto for gen_random_bytes
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 -- Newsletter subscriptions
 CREATE TABLE newsletter_subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -8,7 +11,7 @@ CREATE TABLE newsletter_subscriptions (
   active BOOLEAN DEFAULT true,
   consent_date TIMESTAMPTZ DEFAULT NOW(),
   unsubscribed_at TIMESTAMPTZ,
-  unsubscribe_token TEXT UNIQUE DEFAULT encode(gen_random_bytes(32), 'hex'),
+  unsubscribe_token TEXT UNIQUE DEFAULT replace(gen_random_uuid()::text, '-', ''),
   source TEXT DEFAULT 'popup', -- 'popup', 'footer', 'checkout', etc.
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
