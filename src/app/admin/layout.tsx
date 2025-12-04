@@ -15,6 +15,7 @@ import {
   LogOut,
   Menu,
   X,
+  Calendar,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -22,6 +23,7 @@ const navigation = [
   { name: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
   { name: 'Livres', href: '/admin/livres', icon: BookOpen },
   { name: 'Auteurs', href: '/admin/auteurs', icon: Users },
+  { name: 'Événements', href: '/admin/evenements', icon: Calendar },
   { name: 'Commandes', href: '/admin/commandes', icon: ShoppingBag },
   { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
   { name: 'Paramètres', href: '/admin/parametres', icon: Settings },
