@@ -6,13 +6,17 @@
 -- ADMIN PROFILES
 -- ============================================================================
 
--- Insert admin users (you'll need to create these users in Supabase Auth first)
--- This is a placeholder - adjust UUIDs after creating auth users
+-- Note: Profils admin commentés car ils nécessitent que les utilisateurs
+-- existent dans auth.users d'abord.
+-- Pour créer un admin :
+-- 1. Inscrivez-vous sur le site
+-- 2. Dans Supabase Dashboard → Table Editor → profiles
+-- 3. Changez le role de 'client' à 'admin'
 
-INSERT INTO profiles (id, email, first_name, last_name, role) VALUES
-  ('00000000-0000-0000-0000-000000000001', 'admin@faces-cachees.fr', 'Admin', 'FCE', 'admin'),
-  ('00000000-0000-0000-0000-000000000002', 'editor@faces-cachees.fr', 'Éditeur', 'FCE', 'editor')
-ON CONFLICT (id) DO NOTHING;
+-- INSERT INTO profiles (id, email, first_name, last_name, role) VALUES
+--   ('00000000-0000-0000-0000-000000000001', 'admin@faces-cachees.fr', 'Admin', 'FCE', 'admin'),
+--   ('00000000-0000-0000-0000-000000000002', 'editor@faces-cachees.fr', 'Éditeur', 'FCE', 'editor')
+-- ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================================
 -- AUTHORS
@@ -290,7 +294,7 @@ Nous espérons que vous trouverez dans nos pages de quoi nourrir votre esprit et
   ARRAY['actualité', 'maison d''édition'],
   'published'::publish_status,
   NOW() - INTERVAL '120 days',
-  '00000000-0000-0000-0000-000000000001'
+  NULL
 WHERE NOT EXISTS (SELECT 1 FROM blog_posts WHERE slug = 'bienvenue-chez-faces-cachees-editions');
 
 INSERT INTO blog_posts (
@@ -325,7 +329,7 @@ Restez connectés pour ne rien manquer de l''actualité de Jean Dupont !',
   ARRAY['interview', 'auteur'],
   'published'::publish_status,
   NOW() - INTERVAL '60 days',
-  '00000000-0000-0000-0000-000000000002'
+  NULL
 WHERE NOT EXISTS (SELECT 1 FROM blog_posts WHERE slug = 'rencontre-avec-jean-dupont');
 
 -- ============================================================================
