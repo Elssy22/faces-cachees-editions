@@ -47,7 +47,7 @@ export function Header() {
           <div className="flex-1 flex justify-center">
             <Link href="/" className="flex items-center">
               <Image
-                src="/logo-faces-cachees.png"
+                src="/logo-faces-cachees.svg"
                 alt="Faces cachées Éditions"
                 width={150}
                 height={60}
