@@ -13,22 +13,61 @@ export const metadata = {
 export default async function Home() {
   const supabase = await createClient()
 
-  // Récupérer le livre "L'histoire du football africain" pour le mettre en vedette
-  const { data: featuredBook } = await supabase
-    .from('books')
-    .select(`
-      id,
-      title,
-      slug,
-      price,
-      cover_image_url,
-      publication_date,
-      summary,
-      authors (first_name, last_name)
-    `)
-    .eq('slug', 'histoire-football-africain')
-    .eq('status', 'published')
-    .single()
+  // Récupérer le paramètre du livre en vedette (si la table existe)
+  let featuredBookId: string | null = null
+  try {
+    const { data: featuredSetting } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'featured_book')
+      .single()
+
+    featuredBookId = (featuredSetting?.value as { book_id: string | null })?.book_id
+  } catch {
+    // Table doesn't exist yet, use fallback
+  }
+
+  // Récupérer le livre en vedette
+  let featuredBook = null
+  if (featuredBookId) {
+    // Si un livre est configuré dans site_settings
+    const { data } = await supabase
+      .from('books')
+      .select(`
+        id,
+        title,
+        slug,
+        price,
+        cover_image_url,
+        publication_date,
+        summary,
+        authors (first_name, last_name)
+      `)
+      .eq('id', featuredBookId)
+      .eq('status', 'published')
+      .single()
+    featuredBook = data
+  } else {
+    // Fallback: utiliser le dernier livre publié avec une couverture
+    const { data } = await supabase
+      .from('books')
+      .select(`
+        id,
+        title,
+        slug,
+        price,
+        cover_image_url,
+        publication_date,
+        summary,
+        authors (first_name, last_name)
+      `)
+      .eq('status', 'published')
+      .not('cover_image_url', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+    featuredBook = data
+  }
 
   // Récupérer les 4 derniers livres avec couverture (bloc 2)
   const { data: recentBooks } = await supabase

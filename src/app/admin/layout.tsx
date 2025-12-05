@@ -17,11 +17,13 @@ import {
   X,
   Calendar,
   UserCog,
+  Home,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navigation = [
   { name: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
+  { name: 'Page d\'accueil', href: '/admin/accueil', icon: Home },
   { name: 'Livres', href: '/admin/livres', icon: BookOpen },
   { name: 'Auteurs', href: '/admin/auteurs', icon: Users },
   { name: 'Événements', href: '/admin/evenements', icon: Calendar },
