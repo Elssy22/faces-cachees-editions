@@ -2,6 +2,9 @@ import { createClient } from '@/lib/supabase-server'
 import { BookCard } from '@/components/book-card'
 import { BooksFilters } from '@/components/books-filters'
 import { BOOK_TYPES } from '@/lib/constants'
+import { Database } from '@/types/database'
+
+type BookType = Database['public']['Enums']['book_type']
 
 export const metadata = {
   title: 'Tous les livres',
@@ -43,7 +46,7 @@ export default async function BooksPage({
 
   // Filtre par type
   if (params.type && params.type !== 'all') {
-    query = query.eq('book_type', params.type)
+    query = query.eq('book_type', params.type as BookType)
   }
 
   // Tri

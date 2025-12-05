@@ -44,7 +44,7 @@ export const addressSchema = z.object({
   streetComplement: z.string().optional(),
   city: z.string().min(2, 'La ville doit contenir au moins 2 caractères'),
   postalCode: z.string().regex(/^\d{5}$/, 'Code postal invalide (5 chiffres)'),
-  country: z.string().default('France'),
+  country: z.string().min(1, 'Le pays est requis'),
   phone: z.string().regex(/^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/, 'Téléphone invalide'),
 })
 

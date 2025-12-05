@@ -56,9 +56,9 @@ export function CartDrawer() {
                   >
                     {/* Image */}
                     <div className="relative h-24 w-16 flex-shrink-0 overflow-hidden rounded bg-gray-100">
-                      {item.book.cover_url ? (
+                      {item.book.cover_image_url ? (
                         <Image
-                          src={item.book.cover_url}
+                          src={item.book.cover_image_url}
                           alt={item.book.title}
                           fill
                           className="object-cover"

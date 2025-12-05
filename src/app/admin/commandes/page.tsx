@@ -7,20 +7,23 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatPrice, formatDate } from '@/lib/utils'
 import { Search, Eye } from 'lucide-react'
+import { Database } from '@/types/database'
+
+type OrderStatus = Database['public']['Enums']['order_status']
 
 type Order = {
   id: string
   order_number: string
-  status: string
-  payment_status: string
+  status: string | null
+  payment_status: string | null
   total_amount: number
-  created_at: string
+  created_at: string | null
   shipping_address: any
   profiles?: {
-    first_name: string
-    last_name: string
-    email: string
-  }
+    first_name: string | null
+    last_name: string | null
+    email?: string
+  } | null
 }
 
 export default function AdminOrdersPage() {
@@ -37,24 +40,30 @@ export default function AdminOrdersPage() {
     const supabase = createClient()
     const { data, error } = await supabase
       .from('orders')
-      .select(
-        `
-        *,
-        profiles (
-          first_name,
-          last_name
-        )
-      `
-      )
+      .select('*')
       .order('created_at', { ascending: false })
 
     if (data) {
-      setOrders(data)
+      // Fetch profiles for orders with user_id
+      const ordersWithProfiles = await Promise.all(
+        data.map(async (order) => {
+          if (order.user_id) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('first_name, last_name')
+              .eq('id', order.user_id)
+              .single()
+            return { ...order, profiles: profile }
+          }
+          return { ...order, profiles: null }
+        })
+      )
+      setOrders(ordersWithProfiles)
     }
     setLoading(false)
   }
 
-  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+  const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     const supabase = createClient()
     const { error } = await supabase
       .from('orders')
@@ -168,16 +177,16 @@ export default function AdminOrdersPage() {
                         : order.shipping_address?.firstName || 'Client'}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
-                      {formatDate(order.created_at)}
+                      {order.created_at ? formatDate(order.created_at) : '-'}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">
                       {formatPrice(order.total_amount)}
                     </td>
                     <td className="px-6 py-4">
                       <select
-                        value={order.status}
+                        value={order.status || 'pending'}
                         onChange={(e) =>
-                          updateOrderStatus(order.id, e.target.value)
+                          updateOrderStatus(order.id, e.target.value as OrderStatus)
                         }
                         className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold border-0 cursor-pointer ${
                           order.status === 'delivered'

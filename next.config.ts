@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         hostname: 'assets.bigcartel.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'lwghbcpyhssfgncrgzbt.supabase.co',
+        pathname: '/storage/**',
+      },
     ],
   },
 };

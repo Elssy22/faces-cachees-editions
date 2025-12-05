@@ -53,8 +53,10 @@ export default function CheckoutPaymentPage() {
         .from('orders')
         .insert({
           order_number: orderNumber,
-          status: 'pending',
-          payment_status: 'paid',
+          status: 'pending' as const,
+          payment_status: 'paid' as const,
+          subtotal: subtotal,
+          shipping_cost: shippingCost,
           total_amount: total,
           shipping_address: address,
         })
@@ -67,8 +69,10 @@ export default function CheckoutPaymentPage() {
       const orderItems = items.map((item) => ({
         order_id: order.id,
         book_id: item.bookId,
+        book_title: item.book.title,
         quantity: item.quantity,
-        price: item.book.price,
+        unit_price: item.book.price,
+        total_price: item.book.price * item.quantity,
       }))
 
       const { error: itemsError } = await supabase

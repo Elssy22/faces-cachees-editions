@@ -9,12 +9,13 @@ import { Mail, MailOpen, Trash2 } from 'lucide-react'
 
 type Message = {
   id: string
-  name: string
+  first_name: string
+  last_name: string
   email: string
   subject: string
   message: string
-  read: boolean
-  created_at: string
+  read: boolean | null
+  created_at: string | null
 }
 
 export default function AdminMessagesPage() {
@@ -134,13 +135,13 @@ export default function AdminMessagesPage() {
                               !message.read ? 'font-bold' : ''
                             }`}
                           >
-                            {message.name}
+                            {message.first_name} {message.last_name}
                           </p>
                           <p className="text-xs text-gray-500 truncate">
                             {message.subject}
                           </p>
                           <p className="text-xs text-gray-400 mt-1">
-                            {formatDate(message.created_at)}
+                            {message.created_at ? formatDate(message.created_at) : '-'}
                           </p>
                         </div>
                       </div>
@@ -169,7 +170,7 @@ export default function AdminMessagesPage() {
                       </h2>
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <span className="font-medium">
-                          {selectedMessage.name}
+                          {selectedMessage.first_name} {selectedMessage.last_name}
                         </span>
                         <span>•</span>
                         <a
@@ -180,7 +181,7 @@ export default function AdminMessagesPage() {
                         </a>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        {formatDate(selectedMessage.created_at)}
+                        {selectedMessage.created_at ? formatDate(selectedMessage.created_at) : '-'}
                       </p>
                     </div>
                     <Button

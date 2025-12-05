@@ -27,6 +27,9 @@ export default function CheckoutAddressPage() {
     formState: { errors, isSubmitting },
   } = useForm<AddressInput>({
     resolver: zodResolver(addressSchema),
+    defaultValues: {
+      country: 'France',
+    },
   })
 
   const onSubmit = async (data: AddressInput) => {

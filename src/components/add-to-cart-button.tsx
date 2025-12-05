@@ -1,64 +1,56 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { Button, ButtonProps } from '@/components/ui/button'
 import { useCartStore } from '@/store/cart'
 import { toast } from '@/components/ui/use-toast'
 import { ShoppingCart } from 'lucide-react'
 
-interface AddToCartButtonProps {
-  book: {
-    id: string
-    title: string
-    price: number
-    coverUrl: string | null
-    slug: string
-  }
-  inStock: boolean
+interface AddToCartButtonProps extends Omit<ButtonProps, 'onClick'> {
+  bookId: string
+  bookTitle: string
+  bookPrice: number
+  bookCoverUrl: string | null
+  bookSlug?: string
 }
 
-export function AddToCartButton({ book, inStock }: AddToCartButtonProps) {
-  const addItem = useCartStore((state) => state.addItem)
+export function AddToCartButton({
+  bookId,
+  bookTitle,
+  bookPrice,
+  bookCoverUrl,
+  bookSlug,
+  className,
+  size,
+  ...props
+}: AddToCartButtonProps) {
+  const { addItem, setIsOpen } = useCartStore()
 
   const handleAddToCart = () => {
-    if (!inStock) {
-      toast({
-        title: 'Rupture de stock',
-        description: 'Ce livre n\'est malheureusement plus disponible.',
-        variant: 'destructive',
-      })
-      return
-    }
-
     addItem({
-      id: book.id,
-      bookId: book.id,
-      book: {
-        id: book.id,
-        title: book.title,
-        price: book.price,
-        cover_url: book.coverUrl,
-        slug: book.slug,
-      } as any,
-      quantity: 1,
-      createdAt: new Date().toISOString(),
-    } as any)
+      id: bookId,
+      title: bookTitle,
+      price: bookPrice,
+      cover_image_url: bookCoverUrl,
+      slug: bookSlug || bookId,
+    })
+
+    setIsOpen(true)
 
     toast({
       title: 'Ajouté au panier',
-      description: `${book.title} a été ajouté à votre panier.`,
-      variant: 'success',
+      description: `${bookTitle} a été ajouté à votre panier.`,
     })
   }
 
   return (
     <Button
-      size="lg"
+      size={size}
       onClick={handleAddToCart}
-      disabled={!inStock}
-      className="w-full md:w-auto"
+      className={className}
+      {...props}
     >
-      <ShoppingCart className="mr-2 h-5 w-5" />
-      {inStock ? 'Ajouter au panier' : 'Rupture de stock'}
+      <ShoppingCart className="mr-2 h-4 w-4" />
+      Ajouter au panier
     </Button>
   )
 }

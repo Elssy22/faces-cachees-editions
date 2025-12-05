@@ -24,7 +24,7 @@ export default async function BlogPage() {
         last_name
       )
     `)
-    .eq('published', true)
+    .eq('status', 'published')
     .order('published_at', { ascending: false })
 
   return (
@@ -52,9 +52,9 @@ export default async function BlogPage() {
                 </div>
               )}
               <CardContent className="p-6">
-                {post.category && (
+                {post.tags && post.tags.length > 0 && (
                   <Badge variant="secondary" className="mb-3">
-                    {post.category}
+                    {post.tags[0]}
                   </Badge>
                 )}
                 <h2 className="font-serif text-xl font-bold mb-3 line-clamp-2">
@@ -68,7 +68,7 @@ export default async function BlogPage() {
                 <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    <span>{formatDate(post.published_at || post.created_at)}</span>
+                    <span>{post.published_at || post.created_at ? formatDate(post.published_at || post.created_at!) : '-'}</span>
                   </div>
                   {post.profiles && (
                     <div className="flex items-center gap-1">

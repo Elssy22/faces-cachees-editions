@@ -10,6 +10,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Save } from 'lucide-react'
 import Link from 'next/link'
+import { Database } from '@/types/database'
+
+type BookType = Database['public']['Enums']['book_type']
+type PublishStatus = Database['public']['Enums']['publish_status']
 
 type Author = {
   id: string
@@ -92,7 +96,7 @@ export default function NewBookPage() {
         price: parseFloat(formData.price),
         summary: formData.summary,
         cover_image_url: formData.cover_image_url || null,
-        book_type: formData.book_type,
+        book_type: formData.book_type as BookType,
         genre: formData.genre || null,
         tags: formData.tags ? formData.tags.split(',').map((t) => t.trim()) : [],
         page_count: formData.page_count ? parseInt(formData.page_count) : null,
@@ -101,7 +105,7 @@ export default function NewBookPage() {
         ean: formData.ean || null,
         isbn: formData.isbn || null,
         publication_date: formData.publication_date || null,
-        status: formData.status,
+        status: formData.status as PublishStatus,
         initial_stock: parseInt(formData.initial_stock) || 100,
         current_stock: parseInt(formData.current_stock) || 100,
       }

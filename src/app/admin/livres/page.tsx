@@ -15,15 +15,15 @@ type Book = {
   slug: string
   price: number
   book_type: string
-  status: string
+  status: string | null
   publication_date: string | null
-  author_id: string
-  initial_stock: number
-  current_stock: number
+  author_id: string | null
+  initial_stock: number | null
+  current_stock: number | null
   authors?: {
     first_name: string
     last_name: string
-  }
+  } | null
 }
 
 export default function AdminBooksPage() {
@@ -191,19 +191,19 @@ export default function AdminBooksPage() {
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1">
                         <div className="text-sm font-medium text-gray-900">
-                          {book.current_stock} / {book.initial_stock}
+                          {book.current_stock ?? 0} / {book.initial_stock ?? 100}
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
                             className={`h-2 rounded-full ${
-                              book.current_stock === 0
+                              (book.current_stock ?? 0) === 0
                                 ? 'bg-red-500'
-                                : book.current_stock < book.initial_stock * 0.2
+                                : (book.current_stock ?? 0) < (book.initial_stock ?? 100) * 0.2
                                 ? 'bg-orange-500'
                                 : 'bg-green-500'
                             }`}
                             style={{
-                              width: `${(book.current_stock / book.initial_stock) * 100}%`,
+                              width: `${((book.current_stock ?? 0) / (book.initial_stock ?? 100)) * 100}%`,
                             }}
                           />
                         </div>

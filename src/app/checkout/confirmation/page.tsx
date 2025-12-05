@@ -46,7 +46,7 @@ export default function CheckoutConfirmationPage() {
             books (
               id,
               title,
-              cover_url,
+              cover_image_url,
               slug
             )
           `)
@@ -171,9 +171,9 @@ export default function CheckoutConfirmationPage() {
               {orderItems.map((item) => (
                 <div key={item.id} className="flex gap-4">
                   <div className="relative h-20 w-14 flex-shrink-0 overflow-hidden rounded bg-gray-100">
-                    {item.books?.cover_url ? (
+                    {item.books?.cover_image_url ? (
                       <Image
-                        src={item.books.cover_url}
+                        src={item.books.cover_image_url}
                         alt={item.books.title}
                         fill
                         className="object-cover"

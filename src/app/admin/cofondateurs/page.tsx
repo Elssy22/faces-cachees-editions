@@ -16,7 +16,7 @@ type Founder = {
   last_name: string
   photo_url: string | null
   description: string | null
-  display_order: number
+  display_order: number | null
 }
 
 export default function FoundersAdminPage() {

@@ -30,7 +30,7 @@ export default async function Home() {
     .eq('status', 'published')
     .single()
 
-  // Récupérer les 4 derniers livres (bloc 2)
+  // Récupérer les 4 derniers livres avec couverture (bloc 2)
   const { data: recentBooks } = await supabase
     .from('books')
     .select(`
@@ -42,6 +42,7 @@ export default async function Home() {
       authors (first_name, last_name)
     `)
     .eq('status', 'published')
+    .not('cover_image_url', 'is', null)
     .order('created_at', { ascending: false })
     .limit(4)
 

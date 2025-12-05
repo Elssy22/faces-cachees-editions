@@ -1,4 +1,3 @@
-Initialising login role...
 export type Json =
   | string
   | number
@@ -239,11 +238,13 @@ export type Database = {
           book_type: Database["public"]["Enums"]["book_type"]
           cover_image_url: string | null
           created_at: string | null
+          current_stock: number | null
           dimensions: string | null
           ean: string | null
           format_type: string | null
           genre: string | null
           id: string
+          initial_stock: number | null
           isbn: string | null
           page_count: number | null
           price: number
@@ -263,11 +264,13 @@ export type Database = {
           book_type: Database["public"]["Enums"]["book_type"]
           cover_image_url?: string | null
           created_at?: string | null
+          current_stock?: number | null
           dimensions?: string | null
           ean?: string | null
           format_type?: string | null
           genre?: string | null
           id?: string
+          initial_stock?: number | null
           isbn?: string | null
           page_count?: number | null
           price: number
@@ -287,11 +290,13 @@ export type Database = {
           book_type?: Database["public"]["Enums"]["book_type"]
           cover_image_url?: string | null
           created_at?: string | null
+          current_stock?: number | null
           dimensions?: string | null
           ean?: string | null
           format_type?: string | null
           genre?: string | null
           id?: string
+          initial_stock?: number | null
           isbn?: string | null
           page_count?: number | null
           price?: number
@@ -503,6 +508,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      founders: {
+        Row: {
+          id: string
+          first_name: string
+          last_name: string
+          photo_url: string | null
+          description: string | null
+          display_order: number | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          first_name: string
+          last_name: string
+          photo_url?: string | null
+          description?: string | null
+          display_order?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          first_name?: string
+          last_name?: string
+          photo_url?: string | null
+          description?: string | null
+          display_order?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       media_relays: {
         Row: {

@@ -19,14 +19,14 @@ type Event = {
   address: string | null
   event_url: string | null
   image_url: string | null
-  published: boolean
+  published: boolean | null
   authors?: {
     first_name: string
     last_name: string
-  }
+  } | null
   books?: {
     title: string
-  }
+  } | null
 }
 
 export default function AdminEventsPage() {
