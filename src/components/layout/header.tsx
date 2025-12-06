@@ -9,9 +9,9 @@ import { useCartStore } from '@/store/cart'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/livres', label: 'Catalogue' },
+  { href: '/livres', label: 'Nos livres' },
   { href: '/auteurs', label: 'Auteurs' },
-  { href: '/qui-sommes-nous', label: 'Qui sommes-nous' },
+  { href: '/qui-sommes-nous', label: 'Notre face cachée' },
   { href: '/blog', label: 'Blog' },
   { href: '/contact', label: 'Contact' },
 ]

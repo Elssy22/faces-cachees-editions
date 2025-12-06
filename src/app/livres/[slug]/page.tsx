@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase-server'
 import { AddToCartButton } from '@/components/add-to-cart-button'
@@ -6,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatPrice, formatDate } from '@/lib/utils'
 import { BOOK_TYPES } from '@/lib/constants'
-import { Calendar, BookOpen, FileText, Ruler } from 'lucide-react'
+import { Calendar, BookOpen, FileText, Ruler, Tag } from 'lucide-react'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -77,10 +78,23 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
 
         {/* Informations du livre */}
         <div className="flex flex-col">
-          {/* Type de livre */}
-          <Badge className="w-fit mb-4 capitalize">
-            {book.book_type.replace('_', ' ')}
-          </Badge>
+          {/* Type de livre et tags */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Badge className="capitalize">
+              {book.book_type.replace('_', ' ')}
+            </Badge>
+            {book.tags && book.tags.length > 0 && (
+              <>
+                {book.tags.map((tag: string) => (
+                  <Link key={tag} href={`/livres?tag=${encodeURIComponent(tag)}`}>
+                    <Badge variant="outline" className="cursor-pointer hover:bg-gray-100">
+                      {tag}
+                    </Badge>
+                  </Link>
+                ))}
+              </>
+            )}
+          </div>
 
           <h1 className="font-serif text-4xl font-bold mb-2">{book.title}</h1>
 

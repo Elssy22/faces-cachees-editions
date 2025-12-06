@@ -41,6 +41,9 @@ export default async function AuthorsPage() {
               facebookUrl={author.facebook_url}
               youtubeUrl={author.youtube_url}
               tiktokUrl={author.tiktok_url}
+              videoUrl={(author as { video_url?: string | null }).video_url}
+              videoType={(author as { video_type?: 'upload' | 'youtube' | 'vimeo' | 'dailymotion' | 'other' | null }).video_type}
+              videoTitle={(author as { video_title?: string | null }).video_title}
               booksCount={
                 Array.isArray(author.books) && author.books.length > 0
                   ? author.books[0].count

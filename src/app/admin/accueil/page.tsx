@@ -69,19 +69,40 @@ export default function AdminHomePage() {
     const supabase = createClient()
 
     try {
-      const { error } = await supabase
+      // Vérifier si l'entrée existe
+      const { data: existing } = await supabase
         .from('site_settings')
-        .update({
-          value: { book_id: selectedBookId }
-        })
+        .select('id')
         .eq('key', 'featured_book')
+        .single()
+
+      let error
+      if (existing) {
+        // Update si existe
+        const result = await supabase
+          .from('site_settings')
+          .update({ value: { book_id: selectedBookId } })
+          .eq('key', 'featured_book')
+        error = result.error
+      } else {
+        // Insert si n'existe pas
+        const result = await supabase
+          .from('site_settings')
+          .insert({
+            key: 'featured_book',
+            value: { book_id: selectedBookId },
+            description: 'ID du livre mis en vedette sur la page d\'accueil'
+          })
+        error = result.error
+      }
 
       if (error) throw error
 
       alert('Livre en vedette mis à jour avec succès')
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error:', error)
-      alert('Une erreur est survenue')
+      const message = error instanceof Error ? error.message : JSON.stringify(error)
+      alert(`Une erreur est survenue: ${message}`)
     } finally {
       setSaving(false)
     }

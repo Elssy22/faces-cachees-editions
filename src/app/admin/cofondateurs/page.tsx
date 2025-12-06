@@ -92,7 +92,7 @@ export default function FoundersAdminPage() {
           Gestion des cofondateurs
         </h1>
         <p className="text-gray-600">
-          Modifiez les informations affichées sur la page "Qui sommes-nous"
+          Modifiez les informations affichées sur la page "Notre face cachée"
         </p>
       </div>
 

@@ -6,7 +6,7 @@ import { BookOpen, Users, Heart, Target } from 'lucide-react'
 import { createClient } from '@/lib/supabase-server'
 
 export const metadata = {
-  title: 'Qui sommes-nous',
+  title: 'Notre face cachée',
   description: 'Découvrez Faces Cachées Éditions, notre mission et nos valeurs',
 }
 
@@ -24,7 +24,7 @@ export default async function AboutPage() {
       {/* Hero Section */}
       <div className="mb-16 text-center">
         <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4">
-          Qui sommes-nous ?
+          Notre face cachée
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Faces Cachées Éditions, c'est avant tout une passion pour la littérature

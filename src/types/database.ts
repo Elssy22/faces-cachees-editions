@@ -140,6 +140,9 @@ export type Database = {
           twitter_url: string | null
           updated_at: string | null
           youtube_url: string | null
+          video_url: string | null
+          video_type: 'upload' | 'youtube' | 'vimeo' | 'dailymotion' | 'other' | null
+          video_title: string | null
         }
         Insert: {
           bio?: string | null
@@ -155,6 +158,9 @@ export type Database = {
           twitter_url?: string | null
           updated_at?: string | null
           youtube_url?: string | null
+          video_url?: string | null
+          video_type?: 'upload' | 'youtube' | 'vimeo' | 'dailymotion' | 'other' | null
+          video_title?: string | null
         }
         Update: {
           bio?: string | null
@@ -170,6 +176,9 @@ export type Database = {
           twitter_url?: string | null
           updated_at?: string | null
           youtube_url?: string | null
+          video_url?: string | null
+          video_type?: 'upload' | 'youtube' | 'vimeo' | 'dailymotion' | 'other' | null
+          video_title?: string | null
         }
         Relationships: []
       }

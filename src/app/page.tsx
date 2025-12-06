@@ -1,10 +1,12 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase-server'
 import { BookCard } from '@/components/book-card'
 import { EventCard } from '@/components/event-card'
+import { HeroFeaturedBook } from '@/components/hero-featured-book'
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
+
+export const revalidate = 0 // Désactiver le cache pour les données dynamiques
 
 export const metadata = {
   title: 'Accueil',
@@ -27,10 +29,9 @@ export default async function Home() {
     // Table doesn't exist yet, use fallback
   }
 
-  // Récupérer le livre en vedette
+  // Récupérer le livre en vedette avec la photo de l'auteur
   let featuredBook = null
   if (featuredBookId) {
-    // Si un livre est configuré dans site_settings
     const { data } = await supabase
       .from('books')
       .select(`
@@ -41,14 +42,13 @@ export default async function Home() {
         cover_image_url,
         publication_date,
         summary,
-        authors (first_name, last_name)
+        authors (first_name, last_name, photo_url)
       `)
       .eq('id', featuredBookId)
       .eq('status', 'published')
       .single()
     featuredBook = data
   } else {
-    // Fallback: utiliser le dernier livre publié avec une couverture
     const { data } = await supabase
       .from('books')
       .select(`
@@ -59,7 +59,7 @@ export default async function Home() {
         cover_image_url,
         publication_date,
         summary,
-        authors (first_name, last_name)
+        authors (first_name, last_name, photo_url)
       `)
       .eq('status', 'published')
       .not('cover_image_url', 'is', null)
@@ -94,62 +94,31 @@ export default async function Home() {
     .order('event_date', { ascending: true })
     .limit(3)
 
+  const authorName = featuredBook?.authors
+    ? `${featuredBook.authors.first_name} ${featuredBook.authors.last_name}`
+    : 'Auteur inconnu'
+
+  const authorPhotoUrl = featuredBook?.authors?.photo_url || null
+
+  const authorInitials = featuredBook?.authors
+    ? `${featuredBook.authors.first_name?.[0] || ''}${featuredBook.authors.last_name?.[0] || ''}`
+    : 'A'
+
   return (
     <div className="flex flex-col">
-      {/* Hero Section - L'histoire du football africain */}
+      {/* Hero Section - Style Gallimard avec couleur dynamique */}
       {featuredBook && (
-        <section className="bg-gradient-to-b from-gray-50 to-white py-16">
-          <div className="container mx-auto px-4">
-            <div className="grid gap-8 md:grid-cols-2 md:gap-12 items-center">
-              <div className="relative aspect-[2/3] max-w-md mx-auto">
-                {featuredBook.cover_image_url ? (
-                  <Image
-                    src={featuredBook.cover_image_url}
-                    alt={featuredBook.title}
-                    fill
-                    className="object-cover rounded-lg shadow-2xl"
-                    priority
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center bg-gray-200 rounded-lg">
-                    <span className="text-gray-400">Pas de couverture</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col justify-center">
-                <p className="text-sm font-medium uppercase tracking-wide text-gray-500">
-                  À découvrir
-                </p>
-                <h1 className="mt-2 font-serif text-4xl font-bold md:text-5xl">
-                  {featuredBook.title}
-                </h1>
-                <p className="mt-4 text-lg text-gray-600">
-                  Par{' '}
-                  {featuredBook.authors
-                    ? `${featuredBook.authors.first_name} ${featuredBook.authors.last_name}`
-                    : 'Auteur inconnu'}
-                </p>
-                {featuredBook.summary && (
-                  <p className="mt-4 text-gray-600 line-clamp-4">
-                    {featuredBook.summary}
-                  </p>
-                )}
-                <p className="mt-6 text-2xl font-bold">
-                  {featuredBook.price.toFixed(2)} €
-                </p>
-                <div className="mt-8 flex gap-4">
-                  <Button size="lg" asChild>
-                    <Link href={`/livres/${featuredBook.slug}`}>
-                      Découvrir
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <HeroFeaturedBook
+          book={{
+            title: featuredBook.title,
+            slug: featuredBook.slug,
+            summary: featuredBook.summary,
+            cover_image_url: featuredBook.cover_image_url,
+          }}
+          authorName={authorName}
+          authorPhotoUrl={authorPhotoUrl}
+          authorInitials={authorInitials}
+        />
       )}
 
       {/* Section - Derniers livres */}

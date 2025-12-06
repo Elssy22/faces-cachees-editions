@@ -1,20 +1,24 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase-server'
 import { BookCard } from '@/components/book-card'
 import { BooksFilters } from '@/components/books-filters'
 import { BOOK_TYPES } from '@/lib/constants'
 import { Database } from '@/types/database'
+import { Badge } from '@/components/ui/badge'
+import { X } from 'lucide-react'
 
 type BookType = Database['public']['Enums']['book_type']
 
 export const metadata = {
-  title: 'Tous les livres',
-  description: 'Découvrez tous les livres de notre catalogue',
+  title: 'Nos livres',
+  description: 'Découvrez tous nos livres publiés chez Faces Cachées Éditions',
 }
 
 interface SearchParams {
   type?: string
   sort?: string
   page?: string
+  tag?: string
 }
 
 export default async function BooksPage({
@@ -30,6 +34,27 @@ export default async function BooksPage({
   const from = (currentPage - 1) * itemsPerPage
   const to = from + itemsPerPage - 1
 
+  // Récupérer tous les tags uniques pour les filtres
+  const { data: allBooks } = await supabase
+    .from('books')
+    .select('tags')
+    .eq('status', 'published')
+
+  // Extraire tous les tags uniques et compter leurs occurrences
+  const tagCounts: Record<string, number> = {}
+  allBooks?.forEach((book) => {
+    if (book.tags && Array.isArray(book.tags)) {
+      book.tags.forEach((tag: string) => {
+        tagCounts[tag] = (tagCounts[tag] || 0) + 1
+      })
+    }
+  })
+
+  // Trier les tags par fréquence
+  const sortedTags = Object.entries(tagCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 15) // Garder les 15 tags les plus populaires
+
   // Construire la requête
   let query = supabase
     .from('books')
@@ -40,6 +65,7 @@ export default async function BooksPage({
       price,
       cover_image_url,
       book_type,
+      tags,
       authors (first_name, last_name)
     `, { count: 'exact' })
     .eq('status', 'published')
@@ -47,6 +73,11 @@ export default async function BooksPage({
   // Filtre par type
   if (params.type && params.type !== 'all') {
     query = query.eq('book_type', params.type as BookType)
+  }
+
+  // Filtre par tag
+  if (params.tag) {
+    query = query.contains('tags', [params.tag])
   }
 
   // Tri
@@ -76,10 +107,23 @@ export default async function BooksPage({
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-8">
-        <h1 className="font-serif text-4xl font-bold mb-4">Tous les livres</h1>
+        <h1 className="font-serif text-4xl font-bold mb-4">Nos livres</h1>
         <p className="text-gray-600">
           {count ? `${count} livre${count > 1 ? 's' : ''} disponible${count > 1 ? 's' : ''}` : 'Aucun livre disponible'}
         </p>
+
+        {/* Afficher le tag actif */}
+        {params.tag && (
+          <div className="mt-4 flex items-center gap-2">
+            <span className="text-sm text-gray-600">Filtre actif :</span>
+            <Link href={`/livres${params.type ? `?type=${params.type}` : ''}${params.sort ? `${params.type ? '&' : '?'}sort=${params.sort}` : ''}`}>
+              <Badge variant="secondary" className="cursor-pointer hover:bg-gray-200 flex items-center gap-1">
+                {params.tag}
+                <X className="h-3 w-3" />
+              </Badge>
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
@@ -88,7 +132,9 @@ export default async function BooksPage({
           <BooksFilters
             currentType={params.type}
             currentSort={params.sort}
+            currentTag={params.tag}
             bookTypes={BOOK_TYPES}
+            availableTags={sortedTags}
           />
         </aside>
 
@@ -110,6 +156,7 @@ export default async function BooksPage({
                     price={book.price}
                     coverUrl={book.cover_image_url}
                     slug={book.slug}
+                    tags={book.tags}
                   />
                 ))}
               </div>
@@ -121,6 +168,7 @@ export default async function BooksPage({
                     const searchParamsObj = new URLSearchParams()
                     if (params.type) searchParamsObj.set('type', params.type)
                     if (params.sort) searchParamsObj.set('sort', params.sort)
+                    if (params.tag) searchParamsObj.set('tag', params.tag)
                     searchParamsObj.set('page', page.toString())
 
                     return (

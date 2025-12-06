@@ -18,6 +18,7 @@ import {
   Calendar,
   UserCog,
   Home,
+  Tag,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -26,6 +27,7 @@ const navigation = [
   { name: 'Page d\'accueil', href: '/admin/accueil', icon: Home },
   { name: 'Livres', href: '/admin/livres', icon: BookOpen },
   { name: 'Auteurs', href: '/admin/auteurs', icon: Users },
+  { name: 'Tags', href: '/admin/tags', icon: Tag },
   { name: 'Événements', href: '/admin/evenements', icon: Calendar },
   { name: 'Cofondateurs', href: '/admin/cofondateurs', icon: UserCog },
   { name: 'Commandes', href: '/admin/commandes', icon: ShoppingBag },

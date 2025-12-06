@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { TagInput } from '@/components/ui/tag-input'
+import { AuthorSelect } from '@/components/ui/author-select'
 import { ArrowLeft, Save } from 'lucide-react'
 import Link from 'next/link'
 import { Database } from '@/types/database'
@@ -15,16 +17,9 @@ import { Database } from '@/types/database'
 type BookType = Database['public']['Enums']['book_type']
 type PublishStatus = Database['public']['Enums']['publish_status']
 
-type Author = {
-  id: string
-  first_name: string
-  last_name: string
-}
-
 export default function NewBookPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [authors, setAuthors] = useState<Author[]>([])
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
@@ -35,7 +30,7 @@ export default function NewBookPage() {
     cover_image_url: '',
     book_type: 'roman',
     genre: '',
-    tags: '',
+    tags: [] as string[],
     page_count: '',
     dimensions: '',
     format_type: '',
@@ -46,22 +41,6 @@ export default function NewBookPage() {
     initial_stock: '100',
     current_stock: '100',
   })
-
-  useEffect(() => {
-    loadAuthors()
-  }, [])
-
-  const loadAuthors = async () => {
-    const supabase = createClient()
-    const { data } = await supabase
-      .from('authors')
-      .select('id, first_name, last_name')
-      .order('last_name', { ascending: true })
-
-    if (data) {
-      setAuthors(data)
-    }
-  }
 
   const generateSlug = (title: string) => {
     return title
@@ -98,7 +77,7 @@ export default function NewBookPage() {
         cover_image_url: formData.cover_image_url || null,
         book_type: formData.book_type as BookType,
         genre: formData.genre || null,
-        tags: formData.tags ? formData.tags.split(',').map((t) => t.trim()) : [],
+        tags: formData.tags,
         page_count: formData.page_count ? parseInt(formData.page_count) : null,
         dimensions: formData.dimensions || null,
         format_type: formData.format_type || null,
@@ -322,15 +301,15 @@ export default function NewBookPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="tags">Tags (séparés par des virgules)</Label>
-                  <Input
-                    id="tags"
+                  <Label htmlFor="tags">Tags</Label>
+                  <TagInput
                     value={formData.tags}
-                    onChange={(e) =>
-                      setFormData({ ...formData, tags: e.target.value })
-                    }
-                    placeholder="fiction, drame, contemporain"
+                    onChange={(tags) => setFormData({ ...formData, tags })}
+                    placeholder="Tapez un tag et appuyez sur virgule..."
                   />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Appuyez sur virgule (,) ou Entrée pour ajouter un tag
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -385,22 +364,16 @@ export default function NewBookPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="author_id">Auteur</Label>
-                  <select
-                    id="author_id"
+                  <Label>Auteur</Label>
+                  <AuthorSelect
                     value={formData.author_id}
-                    onChange={(e) =>
-                      setFormData({ ...formData, author_id: e.target.value })
+                    onChange={(authorId) =>
+                      setFormData({ ...formData, author_id: authorId })
                     }
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                  >
-                    <option value="">Sélectionner un auteur</option>
-                    {authors.map((author) => (
-                      <option key={author.id} value={author.id}>
-                        {author.first_name} {author.last_name}
-                      </option>
-                    ))}
-                  </select>
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Sélectionnez un auteur existant ou créez-en un nouveau
+                  </p>
                 </div>
 
                 <div>
