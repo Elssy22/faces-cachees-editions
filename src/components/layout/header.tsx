@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -19,7 +20,15 @@ const navItems = [
 export function Header() {
   const pathname = usePathname()
   const { getItemCount, setIsOpen } = useCartStore()
-  const itemCount = getItemCount()
+  const [mounted, setMounted] = useState(false)
+
+  // Éviter les problèmes d'hydratation avec Zustand persist
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Afficher 0 côté serveur et le vrai compte seulement après montage
+  const itemCount = mounted ? getItemCount() : 0
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b">

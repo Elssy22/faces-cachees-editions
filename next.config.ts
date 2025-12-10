@@ -18,6 +18,36 @@ const nextConfig: NextConfig = {
         hostname: 'lwghbcpyhssfgncrgzbt.supabase.co',
         pathname: '/storage/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.startnplay.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.booska-p.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.bissai.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'yt3.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.licdn.com',
+        pathname: '/**',
+      },
     ],
   },
 };

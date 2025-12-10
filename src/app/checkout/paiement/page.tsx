@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, CreditCard, Lock } from 'lucide-react'
+import { ArrowLeft, CreditCard, Lock, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
@@ -19,32 +19,94 @@ export default function CheckoutPaymentPage() {
   const { items, getTotal, clearCart } = useCartStore()
   const [address, setAddress] = useState<any>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [cardNumber, setCardNumber] = useState('')
+  const [expiry, setExpiry] = useState('')
+  const [cvc, setCvc] = useState('')
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
 
   const subtotal = getTotal()
   const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD * 100 ? 0 : SHIPPING_COST * 100
   const total = subtotal + shippingCost
 
   useEffect(() => {
-    // Vérifier qu'on a bien une adresse
-    const savedAddress = localStorage.getItem('checkout_address')
-    if (!savedAddress) {
-      router.push('/checkout/adresse')
-      return
-    }
-    setAddress(JSON.parse(savedAddress))
+    const init = async () => {
+      const supabase = createClient()
 
-    // Vérifier que le panier n'est pas vide
-    if (items.length === 0) {
-      router.push('/panier')
+      // Vérifier l'authentification
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      setUser(currentUser)
+
+      // Utiliser sessionStorage (plus sécurisé que localStorage)
+      const savedAddress = sessionStorage.getItem('checkout_address')
+      if (!savedAddress) {
+        router.push('/checkout/adresse')
+        return
+      }
+      setAddress(JSON.parse(savedAddress))
+
+      // Vérifier que le panier n'est pas vide
+      if (items.length === 0) {
+        router.push('/panier')
+      }
     }
+
+    init()
   }, [items.length, router])
+
+  // Validation du formulaire de carte
+  const validateCard = () => {
+    const errors: Record<string, string> = {}
+
+    // Validation numéro de carte (basique - 16 chiffres)
+    const cleanCardNumber = cardNumber.replace(/\s/g, '')
+    if (!cleanCardNumber || cleanCardNumber.length < 13 || cleanCardNumber.length > 19) {
+      errors.cardNumber = 'Numéro de carte invalide'
+    } else if (!/^\d+$/.test(cleanCardNumber)) {
+      errors.cardNumber = 'Le numéro ne doit contenir que des chiffres'
+    }
+
+    // Validation date d'expiration (MM/AA)
+    if (!expiry || !/^\d{2}\/\d{2}$/.test(expiry)) {
+      errors.expiry = 'Format MM/AA requis'
+    } else {
+      const [month, year] = expiry.split('/')
+      const expMonth = parseInt(month, 10)
+      const expYear = parseInt('20' + year, 10)
+      const now = new Date()
+      const expDate = new Date(expYear, expMonth - 1)
+
+      if (expMonth < 1 || expMonth > 12) {
+        errors.expiry = 'Mois invalide'
+      } else if (expDate < now) {
+        errors.expiry = 'Carte expirée'
+      }
+    }
+
+    // Validation CVC (3-4 chiffres)
+    if (!cvc || !/^\d{3,4}$/.test(cvc)) {
+      errors.cvc = 'CVC invalide (3-4 chiffres)'
+    }
+
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Valider le formulaire
+    if (!validateCard()) {
+      return
+    }
+
     setIsProcessing(true)
 
     try {
       const supabase = createClient()
+
+      // Récupérer l'utilisateur actuel pour sécurité
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
 
       // Créer la commande dans la base de données
       const orderNumber = generateOrderNumber()
@@ -53,12 +115,14 @@ export default function CheckoutPaymentPage() {
         .from('orders')
         .insert({
           order_number: orderNumber,
+          user_id: currentUser?.id || null, // SÉCURITÉ: Associer à l'utilisateur connecté
           status: 'pending' as const,
           payment_status: 'paid' as const,
           subtotal: subtotal,
           shipping_cost: shippingCost,
           total_amount: total,
           shipping_address: address,
+          // Note: customer_email sera ajouté après migration 024
         })
         .select()
         .single()
@@ -81,9 +145,22 @@ export default function CheckoutPaymentPage() {
 
       if (itemsError) throw itemsError
 
-      // Sauvegarder le numéro de commande pour la page de confirmation
-      localStorage.setItem('order_number', orderNumber)
-      localStorage.setItem('order_id', order.id)
+      // Mettre à jour le stock des livres
+      for (const item of items) {
+        if (item.editionId) {
+          await supabase.rpc('decrement_stock', {
+            edition_id: item.editionId,
+            qty: item.quantity
+          })
+        }
+      }
+
+      // Sauvegarder le numéro de commande pour la page de confirmation (sessionStorage)
+      sessionStorage.setItem('order_number', orderNumber)
+      sessionStorage.setItem('order_id', order.id)
+
+      // Nettoyer les données sensibles
+      sessionStorage.removeItem('checkout_address')
 
       // Vider le panier
       clearCart()
@@ -98,6 +175,27 @@ export default function CheckoutPaymentPage() {
     }
   }
 
+  // Formater le numéro de carte avec des espaces
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '')
+    const matches = v.match(/\d{4,16}/g)
+    const match = (matches && matches[0]) || ''
+    const parts = []
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4))
+    }
+    return parts.length ? parts.join(' ') : value
+  }
+
+  // Formater la date d'expiration
+  const formatExpiry = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '')
+    if (v.length >= 2) {
+      return v.substring(0, 2) + '/' + v.substring(2, 4)
+    }
+    return v
+  }
+
   if (!address || items.length === 0) {
     return null
   }
@@ -110,16 +208,16 @@ export default function CheckoutPaymentPage() {
           <Link href="/panier" className="text-gray-500 hover:text-black">
             Panier
           </Link>
-          <span className="text-gray-300">→</span>
+          <span className="text-gray-300">&rarr;</span>
           <Link
             href="/checkout/adresse"
             className="text-gray-500 hover:text-black"
           >
             Adresse
           </Link>
-          <span className="text-gray-300">→</span>
+          <span className="text-gray-300">&rarr;</span>
           <span className="font-semibold">Paiement</span>
-          <span className="text-gray-300">→</span>
+          <span className="text-gray-300">&rarr;</span>
           <span className="text-gray-400">Confirmation</span>
         </div>
       </div>
@@ -175,11 +273,17 @@ export default function CheckoutPaymentPage() {
                   <Label htmlFor="cardNumber">Numéro de carte</Label>
                   <Input
                     id="cardNumber"
-                    placeholder="4242 4242 4242 4242"
-                    defaultValue="4242 4242 4242 4242"
+                    placeholder="1234 5678 9012 3456"
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                    maxLength={19}
                     disabled={isProcessing}
-                    className="mt-1"
+                    className={`mt-1 ${formErrors.cardNumber ? 'border-red-500' : ''}`}
+                    autoComplete="cc-number"
                   />
+                  {formErrors.cardNumber && (
+                    <p className="text-red-500 text-xs mt-1">{formErrors.cardNumber}</p>
+                  )}
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -188,21 +292,47 @@ export default function CheckoutPaymentPage() {
                     <Input
                       id="expiry"
                       placeholder="MM/AA"
-                      defaultValue="12/26"
+                      value={expiry}
+                      onChange={(e) => setExpiry(formatExpiry(e.target.value))}
+                      maxLength={5}
                       disabled={isProcessing}
-                      className="mt-1"
+                      className={`mt-1 ${formErrors.expiry ? 'border-red-500' : ''}`}
+                      autoComplete="cc-exp"
                     />
+                    {formErrors.expiry && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.expiry}</p>
+                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="cvc">CVC</Label>
                     <Input
                       id="cvc"
-                      placeholder="123"
-                      defaultValue="123"
+                      type="password"
+                      placeholder="***"
+                      value={cvc}
+                      onChange={(e) => setCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                      maxLength={4}
                       disabled={isProcessing}
-                      className="mt-1"
+                      className={`mt-1 ${formErrors.cvc ? 'border-red-500' : ''}`}
+                      autoComplete="cc-csc"
                     />
+                    {formErrors.cvc && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.cvc}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5" />
+                    <div className="text-amber-800">
+                      <p className="font-medium">Mode démonstration</p>
+                      <p className="text-xs mt-1">
+                        Ce site est en mode démo. Aucun paiement réel ne sera effectué.
+                        Utilisez la carte de test Stripe : <code className="bg-amber-100 px-1 rounded">4242 4242 4242 4242</code>
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -212,8 +342,7 @@ export default function CheckoutPaymentPage() {
                     <div className="text-blue-800">
                       <p className="font-medium">Paiement 100% sécurisé</p>
                       <p className="text-xs mt-1">
-                        <strong>Mode démo :</strong> Cette page simule un paiement.
-                        Les numéros de carte sont pré-remplis pour la démonstration.
+                        Vos informations de paiement sont chiffrées et ne sont jamais stockées sur nos serveurs.
                       </p>
                     </div>
                   </div>

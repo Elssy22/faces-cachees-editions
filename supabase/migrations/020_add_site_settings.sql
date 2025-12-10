@@ -1,6 +1,6 @@
 -- Migration 020: Site settings table for featured book management
 
-CREATE TABLE site_settings (
+CREATE TABLE IF NOT EXISTS site_settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   key TEXT UNIQUE NOT NULL,
   value JSONB NOT NULL,
@@ -10,9 +10,10 @@ CREATE TABLE site_settings (
 );
 
 -- Index on key
-CREATE INDEX idx_site_settings_key ON site_settings(key);
+CREATE INDEX IF NOT EXISTS idx_site_settings_key ON site_settings(key);
 
 -- Trigger for updated_at
+DROP TRIGGER IF EXISTS update_site_settings_updated_at ON site_settings;
 CREATE TRIGGER update_site_settings_updated_at
   BEFORE UPDATE ON site_settings
   FOR EACH ROW
@@ -24,16 +25,18 @@ VALUES (
   'featured_book',
   '{"book_id": null}'::jsonb,
   'ID du livre mis en vedette sur la page d''accueil'
-);
+) ON CONFLICT (key) DO NOTHING;
 
 -- RLS policies
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 
 -- Public can read settings
+DROP POLICY IF EXISTS "Public can read site_settings" ON site_settings;
 CREATE POLICY "Public can read site_settings" ON site_settings
   FOR SELECT TO public USING (true);
 
 -- Only admins can update settings
+DROP POLICY IF EXISTS "Admins can update site_settings" ON site_settings;
 CREATE POLICY "Admins can update site_settings" ON site_settings
   FOR UPDATE TO authenticated
   USING (is_admin_or_editor())

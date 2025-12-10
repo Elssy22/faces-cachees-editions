@@ -39,3 +39,303 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* ===== COCKPIT DASHBOARD STYLES ===== */
+
+/* Variables néon */
+:root {
+  --neon-green: #00ff88;
+  --neon-orange: #ff9500;
+  --neon-red: #ff3366;
+  --neon-blue: #00b4d8;
+  --cockpit-bg: #0a0a0a;
+  --cockpit-card: #1a1a2e;
+}
+
+/* Classe pour le mode cockpit admin */
+.cockpit-mode {
+  --background: #0a0a0a;
+  --foreground: #e0e0e0;
+}
+
+.cockpit-mode ::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+
+.cockpit-mode ::-webkit-scrollbar-thumb {
+  background: #3a3a4e;
+}
+
+.cockpit-mode ::-webkit-scrollbar-thumb:hover {
+  background: #4a4a5e;
+}
+
+/* Effet glow néon */
+.neon-glow-green {
+  text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+}
+
+.neon-glow-orange {
+  text-shadow: 0 0 10px var(--neon-orange), 0 0 20px var(--neon-orange);
+}
+
+.neon-glow-red {
+  text-shadow: 0 0 10px var(--neon-red), 0 0 20px var(--neon-red);
+}
+
+.neon-glow-blue {
+  text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+}
+
+/* Box glow */
+.box-glow-green {
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+}
+
+.box-glow-orange {
+  box-shadow: 0 0 15px rgba(255, 149, 0, 0.3);
+}
+
+.box-glow-red {
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+}
+
+.box-glow-blue {
+  box-shadow: 0 0 15px rgba(0, 180, 216, 0.3);
+}
+
+/* Animation pulse pour les alertes */
+@keyframes led-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.led-pulse {
+  animation: led-pulse 2s ease-in-out infinite;
+}
+
+/* Animation de remplissage de jauge */
+@keyframes gauge-fill {
+  from {
+    stroke-dashoffset: 100%;
+  }
+}
+
+/* Transition smooth pour compteurs */
+.counter-transition {
+  transition: all 0.3s ease-out;
+}
+
+/* Fond métallique */
+.metallic-border {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+}
+
+/* Pattern de grille cockpit */
+.cockpit-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* ===== ADMIN COCKPIT MODE - OVERRIDE UI COMPONENTS ===== */
+
+/* Titres et textes en mode cockpit */
+.cockpit-mode h1,
+.cockpit-mode h2,
+.cockpit-mode h3 {
+  color: #e0e0e0;
+}
+
+.cockpit-mode p {
+  color: #a0a0a0;
+}
+
+/* Cards en mode cockpit - Cibler la classe bg-white de Tailwind */
+.cockpit-mode .bg-white {
+  background: linear-gradient(to bottom, #1a1a2e, #0f0f1a) !important;
+}
+
+.cockpit-mode .border-gray-200 {
+  border-color: #2a2a3e !important;
+}
+
+.cockpit-mode .text-gray-950 {
+  color: #e0e0e0 !important;
+}
+
+.cockpit-mode .text-gray-500 {
+  color: #888 !important;
+}
+
+.cockpit-mode .text-gray-600 {
+  color: #999 !important;
+}
+
+.cockpit-mode .text-gray-700 {
+  color: #aaa !important;
+}
+
+/* Conteneurs Cards spécifiques */
+.cockpit-mode .rounded-lg.border.shadow-sm {
+  background: linear-gradient(to bottom, #1a1a2e, #0f0f1a) !important;
+  border-color: #2a2a3e !important;
+  color: #e0e0e0 !important;
+}
+
+/* Boutons en mode cockpit - Classe w-full pour les boutons principaux */
+.cockpit-mode button.w-full:not(.justify-start) {
+  background: linear-gradient(to bottom, #00b4d8, #0077b6) !important;
+  color: white !important;
+  border: 1px solid #00b4d8 !important;
+  box-shadow: 0 0 10px rgba(0, 180, 216, 0.3);
+}
+
+.cockpit-mode button.w-full:not(.justify-start):hover {
+  background: linear-gradient(to bottom, #00c4e8, #0087c6) !important;
+  box-shadow: 0 0 15px rgba(0, 180, 216, 0.5);
+}
+
+.cockpit-mode button.w-full:not(.justify-start):disabled {
+  background: #2a2a3e !important;
+  border-color: #3a3a4e !important;
+  color: #666 !important;
+  box-shadow: none;
+}
+
+/* Bouton de sélection de livre (aspect-ratio) */
+.cockpit-mode button.aspect-\[2\/3\] {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+.cockpit-mode button.aspect-\[2\/3\]:hover {
+  border-color: #3a3a4e !important;
+}
+
+/* Boutons outline */
+.cockpit-mode button[class*="outline"],
+.cockpit-mode .border-gray-300 {
+  border-color: #3a3a4e !important;
+  color: #e0e0e0 !important;
+  background: transparent !important;
+}
+
+.cockpit-mode button[class*="outline"]:hover {
+  background: #1a1a2e !important;
+  border-color: #00b4d8 !important;
+}
+
+/* Boutons ghost */
+.cockpit-mode button[class*="ghost"] {
+  color: #a0a0a0 !important;
+}
+
+.cockpit-mode button[class*="ghost"]:hover {
+  background: #1a1a2e !important;
+  color: #e0e0e0 !important;
+}
+
+/* Inputs en mode cockpit */
+.cockpit-mode input,
+.cockpit-mode select,
+.cockpit-mode textarea {
+  background: #0a0a0a !important;
+  border-color: #2a2a3e !important;
+  color: #e0e0e0 !important;
+}
+
+.cockpit-mode input::placeholder,
+.cockpit-mode textarea::placeholder {
+  color: #555 !important;
+}
+
+.cockpit-mode input:focus,
+.cockpit-mode select:focus,
+.cockpit-mode textarea:focus {
+  border-color: #00b4d8 !important;
+  box-shadow: 0 0 0 2px rgba(0, 180, 216, 0.2) !important;
+  outline: none !important;
+}
+
+/* Select avec focus-ring */
+.cockpit-mode .focus\:ring-black:focus {
+  --tw-ring-color: #00b4d8 !important;
+}
+
+/* Labels en mode cockpit */
+.cockpit-mode label {
+  color: #a0a0a0 !important;
+}
+
+/* Tables en mode cockpit */
+.cockpit-mode table {
+  background: #0f0f1a;
+}
+
+.cockpit-mode th {
+  background: #1a1a2e !important;
+  color: #e0e0e0 !important;
+  border-color: #2a2a3e !important;
+}
+
+.cockpit-mode td {
+  border-color: #1a1a2e !important;
+  color: #c0c0c0 !important;
+}
+
+.cockpit-mode tr:hover td {
+  background: #1a1a2e !important;
+}
+
+/* Badges en mode cockpit */
+.cockpit-mode [class*="badge"] {
+  border-color: transparent;
+}
+
+/* Select dropdowns */
+.cockpit-mode select option {
+  background: #0a0a0a;
+  color: #e0e0e0;
+}
+
+/* Dialog/Modal en mode cockpit */
+.cockpit-mode [role="dialog"] {
+  background: #0f0f1a !important;
+  border-color: #2a2a3e !important;
+}
+
+/* Checkbox en mode cockpit */
+.cockpit-mode input[type="checkbox"] {
+  background: #0a0a0a !important;
+  border-color: #3a3a4e !important;
+}
+
+.cockpit-mode input[type="checkbox"]:checked {
+  background: #00b4d8 !important;
+  border-color: #00b4d8 !important;
+}
+
+/* Background gris dans cockpit mode */
+.cockpit-mode .bg-gray-50 {
+  background: #0f0f1a !important;
+}
+
+.cockpit-mode .bg-gray-100 {
+  background: #1a1a2e !important;
+}
+
+/* Alert backgrounds */
+.cockpit-mode .bg-orange-50 {
+  background: rgba(255, 149, 0, 0.1) !important;
+}
+
+.cockpit-mode .text-orange-600 {
+  color: #ff9500 !important;
+}

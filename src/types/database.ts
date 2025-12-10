@@ -1,3 +1,4 @@
+Initialising login role...
 export type Json =
   | string
   | number
@@ -139,10 +140,10 @@ export type Database = {
           tiktok_url: string | null
           twitter_url: string | null
           updated_at: string | null
-          youtube_url: string | null
-          video_url: string | null
-          video_type: 'upload' | 'youtube' | 'vimeo' | 'dailymotion' | 'other' | null
           video_title: string | null
+          video_type: string | null
+          video_url: string | null
+          youtube_url: string | null
         }
         Insert: {
           bio?: string | null
@@ -157,10 +158,10 @@ export type Database = {
           tiktok_url?: string | null
           twitter_url?: string | null
           updated_at?: string | null
-          youtube_url?: string | null
-          video_url?: string | null
-          video_type?: 'upload' | 'youtube' | 'vimeo' | 'dailymotion' | 'other' | null
           video_title?: string | null
+          video_type?: string | null
+          video_url?: string | null
+          youtube_url?: string | null
         }
         Update: {
           bio?: string | null
@@ -175,10 +176,10 @@ export type Database = {
           tiktok_url?: string | null
           twitter_url?: string | null
           updated_at?: string | null
-          youtube_url?: string | null
-          video_url?: string | null
-          video_type?: 'upload' | 'youtube' | 'vimeo' | 'dailymotion' | 'other' | null
           video_title?: string | null
+          video_type?: string | null
+          video_url?: string | null
+          youtube_url?: string | null
         }
         Relationships: []
       }
@@ -237,6 +238,122 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      book_authors: {
+        Row: {
+          author_id: string
+          book_id: string
+          created_at: string
+          display_order: number | null
+          id: string
+          role: string | null
+        }
+        Insert: {
+          author_id: string
+          book_id: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          role?: string | null
+        }
+        Update: {
+          author_id?: string
+          book_id?: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_authors_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_authors_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      book_editions: {
+        Row: {
+          book_id: string
+          cover_image_url: string | null
+          created_at: string
+          current_stock: number | null
+          dimensions: string | null
+          display_order: number | null
+          ean: string | null
+          format: Database["public"]["Enums"]["edition_format"]
+          format_label: string | null
+          id: string
+          initial_stock: number | null
+          is_available: boolean | null
+          is_preorder: boolean | null
+          isbn: string | null
+          page_count: number | null
+          preorder_date: string | null
+          price: number
+          updated_at: string
+          weight_grams: number | null
+        }
+        Insert: {
+          book_id: string
+          cover_image_url?: string | null
+          created_at?: string
+          current_stock?: number | null
+          dimensions?: string | null
+          display_order?: number | null
+          ean?: string | null
+          format: Database["public"]["Enums"]["edition_format"]
+          format_label?: string | null
+          id?: string
+          initial_stock?: number | null
+          is_available?: boolean | null
+          is_preorder?: boolean | null
+          isbn?: string | null
+          page_count?: number | null
+          preorder_date?: string | null
+          price: number
+          updated_at?: string
+          weight_grams?: number | null
+        }
+        Update: {
+          book_id?: string
+          cover_image_url?: string | null
+          created_at?: string
+          current_stock?: number | null
+          dimensions?: string | null
+          display_order?: number | null
+          ean?: string | null
+          format?: Database["public"]["Enums"]["edition_format"]
+          format_label?: string | null
+          id?: string
+          initial_stock?: number | null
+          is_available?: boolean | null
+          is_preorder?: boolean | null
+          isbn?: string | null
+          page_count?: number | null
+          preorder_date?: string | null
+          price?: number
+          updated_at?: string
+          weight_grams?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_editions_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
             referencedColumns: ["id"]
           },
         ]
@@ -520,33 +637,33 @@ export type Database = {
       }
       founders: {
         Row: {
-          id: string
-          first_name: string
-          last_name: string
-          photo_url: string | null
+          created_at: string | null
           description: string | null
           display_order: number | null
-          created_at: string | null
+          first_name: string
+          id: string
+          last_name: string
+          photo_url: string | null
           updated_at: string | null
         }
         Insert: {
-          id?: string
-          first_name: string
-          last_name: string
-          photo_url?: string | null
+          created_at?: string | null
           description?: string | null
           display_order?: number | null
-          created_at?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          photo_url?: string | null
           updated_at?: string | null
         }
         Update: {
-          id?: string
-          first_name?: string
-          last_name?: string
-          photo_url?: string | null
+          created_at?: string | null
           description?: string | null
           display_order?: number | null
-          created_at?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          photo_url?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -873,34 +990,78 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          created_at: string | null
+          description: string | null
           id: string
           key: string
-          value: Json
-          description: string | null
-          created_at: string | null
           updated_at: string | null
+          value: Json
         }
         Insert: {
+          created_at?: string | null
+          description?: string | null
           id?: string
           key: string
-          value: Json
-          description?: string | null
-          created_at?: string | null
           updated_at?: string | null
+          value: Json
         }
         Update: {
+          created_at?: string | null
+          description?: string | null
           id?: string
           key?: string
-          value?: Json
-          description?: string | null
-          created_at?: string | null
           updated_at?: string | null
+          value?: Json
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      book_authors_view: {
+        Row: {
+          author_id: string | null
+          author_slug: string | null
+          book_id: string | null
+          display_order: number | null
+          first_name: string | null
+          last_name: string | null
+          photo_url: string | null
+          role: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_authors_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_authors_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      book_min_prices: {
+        Row: {
+          book_id: string | null
+          edition_count: number | null
+          max_price: number | null
+          min_price: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_editions_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       auto_publish_blog_posts: { Args: never; Returns: undefined }
@@ -991,6 +1152,14 @@ export type Database = {
         | "recueil"
         | "revue"
         | "developpement_personnel"
+      edition_format:
+        | "grand_format"
+        | "poche"
+        | "broche"
+        | "relie"
+        | "collector"
+        | "numerique"
+        | "audio"
       media_type: "instagram" | "article" | "video" | "podcast"
       order_status:
         | "pending"
@@ -1640,6 +1809,15 @@ export const Constants = {
         "recueil",
         "revue",
         "developpement_personnel",
+      ],
+      edition_format: [
+        "grand_format",
+        "poche",
+        "broche",
+        "relie",
+        "collector",
+        "numerique",
+        "audio",
       ],
       media_type: ["instagram", "article", "video", "podcast"],
       order_status: [

@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -44,12 +43,11 @@ export default async function AboutPage() {
                 <CardContent className="p-6 text-center">
                   {founder.photo_url && (
                     <div className="relative w-48 h-48 mx-auto mb-4 rounded-full overflow-hidden">
-                      <Image
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
                         src={founder.photo_url}
                         alt={`${founder.first_name} ${founder.last_name}`}
-                        fill
-                        className="object-cover"
-                        sizes="192px"
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
                     </div>
                   )}

@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/toaster";
 import { NewsletterPopup } from "@/components/newsletter-popup";
 import { CartDrawer } from "@/components/cart-drawer";
+import { GlobalAnalyticsTracker } from "@/components/analytics-tracker";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 
 const inter = Inter({
@@ -56,6 +57,7 @@ export default function RootLayout({
         </div>
         <CartDrawer />
         <NewsletterPopup />
+        <GlobalAnalyticsTracker />
         <Toaster />
       </body>
     </html>

@@ -5,7 +5,8 @@ import { createClient } from '@/lib/supabase-browser'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { Save, Star } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Save, Star, Youtube } from 'lucide-react'
 import Image from 'next/image'
 
 type Book = {
@@ -19,11 +20,21 @@ type Book = {
   } | null
 }
 
+// Helper pour extraire l'ID YouTube d'une URL
+function getYouTubeId(url: string): string | null {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+  const match = url.match(regExp)
+  return match && match[2].length === 11 ? match[2] : null
+}
+
 export default function AdminHomePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [savingVideo, setSavingVideo] = useState(false)
   const [books, setBooks] = useState<Book[]>([])
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null)
+  const [videoUrl, setVideoUrl] = useState('')
+  const [videoTitle, setVideoTitle] = useState('')
 
   useEffect(() => {
     loadData()
@@ -49,7 +60,7 @@ export default function AdminHomePage() {
       setBooks(booksData)
     }
 
-    // Charger le paramètre actuel
+    // Charger le paramètre actuel du livre
     const { data: settingData } = await supabase
       .from('site_settings')
       .select('value')
@@ -59,6 +70,19 @@ export default function AdminHomePage() {
     if (settingData?.value) {
       const value = settingData.value as { book_id: string | null }
       setSelectedBookId(value.book_id)
+    }
+
+    // Charger le paramètre de la vidéo
+    const { data: videoData } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'featured_video')
+      .single()
+
+    if (videoData?.value) {
+      const value = videoData.value as { url?: string; title?: string }
+      setVideoUrl(value.url || '')
+      setVideoTitle(value.title || '')
     }
 
     setLoading(false)
@@ -108,7 +132,57 @@ export default function AdminHomePage() {
     }
   }
 
+  const handleSaveVideo = async () => {
+    setSavingVideo(true)
+    const supabase = createClient()
+
+    try {
+      // Vérifier si l'entrée existe
+      const { data: existing } = await supabase
+        .from('site_settings')
+        .select('id')
+        .eq('key', 'featured_video')
+        .single()
+
+      const videoValue = {
+        url: videoUrl.trim() || null,
+        title: videoTitle.trim() || 'Vidéo à la une',
+      }
+
+      let error
+      if (existing) {
+        // Update si existe
+        const result = await supabase
+          .from('site_settings')
+          .update({ value: videoValue })
+          .eq('key', 'featured_video')
+        error = result.error
+      } else {
+        // Insert si n'existe pas
+        const result = await supabase
+          .from('site_settings')
+          .insert({
+            key: 'featured_video',
+            value: videoValue,
+            description: 'Vidéo YouTube mise en avant sur la page d\'accueil'
+          })
+        error = result.error
+      }
+
+      if (error) throw error
+
+      alert('Vidéo mise à jour avec succès')
+    } catch (error: unknown) {
+      console.error('Error:', error)
+      const message = error instanceof Error ? error.message : JSON.stringify(error)
+      alert(`Une erreur est survenue: ${message}`)
+    } finally {
+      setSavingVideo(false)
+    }
+  }
+
   const selectedBook = books.find(b => b.id === selectedBookId)
+  const youtubeId = videoUrl ? getYouTubeId(videoUrl) : null
 
   if (loading) {
     return (
@@ -259,6 +333,87 @@ export default function AdminHomePage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Section Vidéo YouTube */}
+      <div className="grid gap-6 lg:grid-cols-2 mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Youtube className="h-5 w-5 text-red-600" />
+              Vidéo à la une
+            </CardTitle>
+            <CardDescription>
+              Ajoutez une vidéo YouTube qui sera affichée sur la page d'accueil
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="video_title">Titre de la section</Label>
+              <Input
+                id="video_title"
+                value={videoTitle}
+                onChange={(e) => setVideoTitle(e.target.value)}
+                placeholder="Ex: Découvrez notre maison d'édition"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="video_url">URL de la vidéo YouTube</Label>
+              <Input
+                id="video_url"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="mt-1"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Formats acceptés : youtube.com/watch?v=..., youtu.be/..., youtube.com/embed/...
+              </p>
+            </div>
+
+            <Button onClick={handleSaveVideo} disabled={savingVideo} className="w-full">
+              <Save className="mr-2 h-4 w-4" />
+              {savingVideo ? 'Enregistrement...' : 'Enregistrer la vidéo'}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Aperçu de la vidéo */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Aperçu de la vidéo</CardTitle>
+            <CardDescription>
+              Voici comment la vidéo apparaîtra sur la page d'accueil
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {youtubeId ? (
+              <div className="space-y-3">
+                <p className="font-serif text-lg font-bold text-center">
+                  {videoTitle || 'Vidéo à la une'}
+                </p>
+                <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${youtubeId}`}
+                    title={videoTitle || 'Vidéo YouTube'}
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Youtube className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Aucune vidéo configurée</p>
+                <p className="text-sm mt-1">
+                  {videoUrl ? 'URL invalide - vérifiez le format' : 'Entrez une URL YouTube pour voir l\'aperçu'}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

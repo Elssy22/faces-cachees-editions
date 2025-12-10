@@ -33,8 +33,9 @@ export default function CheckoutAddressPage() {
   })
 
   const onSubmit = async (data: AddressInput) => {
-    // Sauvegarder l'adresse dans le localStorage pour la page de paiement
-    localStorage.setItem('checkout_address', JSON.stringify(data))
+    // SÉCURITÉ: Utiliser sessionStorage (données supprimées à la fermeture du navigateur)
+    // au lieu de localStorage (persiste indéfiniment)
+    sessionStorage.setItem('checkout_address', JSON.stringify(data))
 
     // Rediriger vers la page de paiement
     router.push('/checkout/paiement')

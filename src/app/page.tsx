@@ -8,6 +8,25 @@ import { ArrowRight } from 'lucide-react'
 
 export const revalidate = 0 // Désactiver le cache pour les données dynamiques
 
+// Fonction pour convertir une URL YouTube en URL d'embed
+function getYouTubeEmbedUrl(url: string): string {
+  // Gérer les différents formats d'URL YouTube
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+  const match = url.match(regExp)
+  const videoId = match && match[2].length === 11 ? match[2] : null
+
+  if (videoId) {
+    return `https://www.youtube.com/embed/${videoId}`
+  }
+
+  // Si c'est déjà une URL d'embed, la retourner telle quelle
+  if (url.includes('youtube.com/embed/')) {
+    return url
+  }
+
+  return url
+}
+
 export const metadata = {
   title: 'Accueil',
 }
@@ -17,6 +36,7 @@ export default async function Home() {
 
   // Récupérer le paramètre du livre en vedette (si la table existe)
   let featuredBookId: string | null = null
+  let featuredVideo: { url: string; title: string } | null = null
   try {
     const { data: featuredSetting } = await supabase
       .from('site_settings')
@@ -25,6 +45,23 @@ export default async function Home() {
       .single()
 
     featuredBookId = (featuredSetting?.value as { book_id: string | null })?.book_id
+
+    // Récupérer la vidéo mise en avant
+    const { data: videoSetting } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'featured_video')
+      .single()
+
+    if (videoSetting?.value) {
+      const videoValue = videoSetting.value as { url?: string; title?: string }
+      if (videoValue.url) {
+        featuredVideo = {
+          url: videoValue.url,
+          title: videoValue.title || 'Vidéo à la une',
+        }
+      }
+    }
   } catch {
     // Table doesn't exist yet, use fallback
   }
@@ -173,6 +210,28 @@ export default async function Home() {
                   location={event.location}
                 />
               ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section - Vidéo à la une */}
+      {featuredVideo && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <h2 className="font-serif text-3xl font-bold mb-8 text-center">
+              {featuredVideo.title}
+            </h2>
+            <div className="max-w-4xl mx-auto">
+              <div className="relative aspect-video rounded-xl overflow-hidden shadow-2xl">
+                <iframe
+                  src={getYouTubeEmbedUrl(featuredVideo.url)}
+                  title={featuredVideo.title}
+                  className="absolute inset-0 w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
             </div>
           </div>
         </section>

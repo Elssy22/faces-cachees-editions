@@ -12,8 +12,39 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { createClient } from '@/lib/supabase-browser'
-import { BookOpen, Instagram, Facebook, Youtube, Play, Video } from 'lucide-react'
+import { BookOpen, Instagram, Facebook, Youtube, Play, Video, User } from 'lucide-react'
 import { SiX, SiTiktok } from 'react-icons/si'
+
+// Valider qu'une URL est valide
+function isValidUrl(url: string | null | undefined): url is string {
+  if (!url) return false
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return false
+  }
+}
+
+// Liste des hostnames autorisés pour Next.js Image
+const ALLOWED_IMAGE_HOSTNAMES = [
+  'www.dropbox.com',
+  'assets.bigcartel.com',
+  'lwghbcpyhssfgncrgzbt.supabase.co',
+  'www.startnplay.com',
+  'www.booska-p.com',
+  'www.bissai.com',
+]
+
+// Vérifier si l'URL est d'un domaine autorisé pour Next.js Image
+function isAllowedImageHost(url: string): boolean {
+  try {
+    const hostname = new URL(url).hostname
+    return ALLOWED_IMAGE_HOSTNAMES.includes(hostname)
+  } catch {
+    return false
+  }
+}
 
 interface AuthorCardProps {
   id: string
@@ -80,7 +111,13 @@ export function AuthorCard({
   const [isOpen, setIsOpen] = useState(false)
   const [books, setBooks] = useState<Book[]>([])
   const [loadingBooks, setLoadingBooks] = useState(false)
+  const [imageError, setImageError] = useState(false)
   const fullName = `${firstName} ${lastName}`
+
+  // Vérifier si l'URL de la photo est valide
+  const hasValidPhoto = isValidUrl(photoUrl) && !imageError
+  // Utiliser Next.js Image uniquement pour les domaines configurés
+  const useNextImage = hasValidPhoto && isAllowedImageHost(photoUrl)
 
   // Charger les livres de l'auteur quand le modal s'ouvre
   useEffect(() => {
@@ -224,17 +261,28 @@ export function AuthorCard({
     <>
       <Card className="overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer">
         <div className="relative h-80 bg-gray-100" onClick={() => setIsOpen(true)}>
-          {photoUrl ? (
-            <Image
-              src={photoUrl}
-              alt={fullName}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
+          {hasValidPhoto ? (
+            useNextImage ? (
+              <Image
+                src={photoUrl}
+                alt={fullName}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={photoUrl}
+                alt={fullName}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                onError={() => setImageError(true)}
+              />
+            )
           ) : (
             <div className="flex h-full items-center justify-center text-gray-400">
-              <BookOpen className="h-16 w-16" />
+              <User className="h-16 w-16" />
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -281,17 +329,28 @@ export function AuthorCard({
             <div className="grid gap-6 md:grid-cols-2">
               {/* Photo de l'auteur */}
               <div className="relative aspect-[3/4] w-full rounded-lg overflow-hidden bg-gray-100">
-                {photoUrl ? (
-                  <Image
-                    src={photoUrl}
-                    alt={fullName}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 400px"
-                  />
+                {hasValidPhoto ? (
+                  useNextImage ? (
+                    <Image
+                      src={photoUrl}
+                      alt={fullName}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 400px"
+                      onError={() => setImageError(true)}
+                    />
+                  ) : (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={photoUrl}
+                      alt={fullName}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={() => setImageError(true)}
+                    />
+                  )
                 ) : (
                   <div className="flex h-full items-center justify-center text-gray-400">
-                    <BookOpen className="h-20 w-20" />
+                    <User className="h-20 w-20" />
                   </div>
                 )}
               </div>

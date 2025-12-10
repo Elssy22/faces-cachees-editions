@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cart'
@@ -17,7 +18,15 @@ import { SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
 
 export function CartDrawer() {
   const { items, isOpen, setIsOpen, updateQuantity, removeItem, getTotal } = useCartStore()
-  const subtotal = getTotal()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Éviter les problèmes d'hydratation
+  const displayItems = mounted ? items : []
+  const subtotal = mounted ? getTotal() : 0
   const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD * 100 ? 0 : SHIPPING_COST * 100
   const total = subtotal + shippingCost
 
@@ -27,11 +36,11 @@ export function CartDrawer() {
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5" />
-            Mon panier ({items.length})
+            Mon panier ({displayItems.length})
           </SheetTitle>
         </SheetHeader>
 
-        {items.length === 0 ? (
+        {displayItems.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
             <ShoppingBag className="h-16 w-16 text-gray-300" />
             <div>
@@ -49,7 +58,7 @@ export function CartDrawer() {
             {/* Liste des articles */}
             <div className="flex-1 overflow-auto py-4">
               <div className="space-y-4">
-                {items.map((item) => (
+                {displayItems.map((item) => (
                   <div
                     key={item.id}
                     className="flex gap-4 rounded-lg border p-4"
